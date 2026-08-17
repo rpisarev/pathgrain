@@ -1,0 +1,136 @@
+# ============================================================
+# Pathgrain — Flutter
+# ============================================================
+
+
+# ------------------------------------------------------------
+# Dart / Flutter
+# ------------------------------------------------------------
+
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+
+# Flutter generated build metadata
+**/generated_plugin_registrant.dart
+
+
+# ------------------------------------------------------------
+# Android / Gradle
+# ------------------------------------------------------------
+
+android/.gradle/
+android/local.properties
+android/**/GeneratedPluginRegistrant.java
+
+# Gradle build output
+android/**/build/
+.gradle/
+
+# Android Studio / IntelliJ project files
+*.iml
+.idea/
+
+# Signing / secrets
+android/key.properties
+*.jks
+*.keystore
+
+
+# ------------------------------------------------------------
+# iOS / Xcode / CocoaPods
+# ------------------------------------------------------------
+
+ios/Pods/
+ios/.symlinks/
+
+ios/Flutter/ephemeral/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+
+ios/Runner/GeneratedPluginRegistrant.*
+
+# Xcode user-specific data
+**/xcuserdata/
+**/*.xcuserstate
+
+# Xcode build output
+DerivedData/
+
+
+# ------------------------------------------------------------
+# macOS
+# ------------------------------------------------------------
+
+macos/Pods/
+macos/.symlinks/
+macos/Flutter/ephemeral/
+macos/Flutter/GeneratedPluginRegistrant.swift
+
+
+# ------------------------------------------------------------
+# IDE / Editor
+# ------------------------------------------------------------
+
+.vscode/
+*.code-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+\#*\#
+.#*
+
+
+# ------------------------------------------------------------
+# Operating system files
+# ------------------------------------------------------------
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
+Thumbs.db
+Desktop.ini
+
+
+# ------------------------------------------------------------
+# Logs / temporary files
+# ------------------------------------------------------------
+
+*.log
+*.tmp
+*.temp
+*.bak
+*.orig
+
+coverage/
+
+
+# ------------------------------------------------------------
+# Environment / secrets
+# ------------------------------------------------------------
+
+.env
+.env.*
+!.env.example
+
+*.pem
+*.p12
+*.mobileprovision
+
+
+# ------------------------------------------------------------
+# Firebase / local configuration secrets
+# Add exceptions later if some of these should be committed.
+# ------------------------------------------------------------
+
+# google-services.json
+# GoogleService-Info.plist
