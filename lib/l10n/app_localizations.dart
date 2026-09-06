@@ -337,6 +337,300 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Precise location is recommended. Approximate location may not produce a usable route.'**
   String get preciseLocationRecommended;
+
+  /// No description provided for @surfaceEvidence.
+  ///
+  /// In en, this message translates to:
+  /// **'Surface evidence'**
+  String get surfaceEvidence;
+
+  /// No description provided for @evidenceOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open development view'**
+  String get evidenceOpen;
+
+  /// No description provided for @evidencePrivacyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'This development view requests fixed map cells from Overpass and loads a visual basemap from OpenFreeMap. Providers can learn the approximate areas requested, your IP address, and request time. Your ordered GPS track, timestamps, walk ID, and accuracy values stay on this device. Fixed cells reduce detail; remote map access is not anonymous.'**
+  String get evidencePrivacyNotice;
+
+  /// No description provided for @evidenceRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh OSM evidence'**
+  String get evidenceRefresh;
+
+  /// No description provided for @evidenceCalculating.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculating fixed geographic cells…'**
+  String get evidenceCalculating;
+
+  /// No description provided for @evidenceReadingCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading local OSM cache…'**
+  String get evidenceReadingCache;
+
+  /// No description provided for @evidenceUsingCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Using available cached evidence…'**
+  String get evidenceUsingCache;
+
+  /// No description provided for @evidenceFetching.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetching OSM evidence, one cell at a time…'**
+  String get evidenceFetching;
+
+  /// No description provided for @evidenceRefreshing.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh requested; keeping cached evidence until replaced…'**
+  String get evidenceRefreshing;
+
+  /// No description provided for @evidenceLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'OSM evidence loaded. No surface has been assigned to this walk.'**
+  String get evidenceLoaded;
+
+  /// No description provided for @evidenceEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No relevant OSM evidence returned. No surface has been assigned.'**
+  String get evidenceEmpty;
+
+  /// No description provided for @evidencePartialFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Partial result: {count} cells could not be fetched or refreshed. Available evidence is shown.'**
+  String evidencePartialFailure(int count);
+
+  /// No description provided for @evidenceTotalFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'No OSM cells are available. The saved walk is unchanged.'**
+  String get evidenceTotalFailure;
+
+  /// No description provided for @evidenceCellCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Cells: {available}/{total} · cached: {cached} · fetched: {fetched} · OSM objects: {features}'**
+  String evidenceCellCounts(
+    int available,
+    int total,
+    int cached,
+    int fetched,
+    int features,
+  );
+
+  /// No description provided for @evidenceOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Network could not be reached; the device may be offline. Cached cells are kept.'**
+  String get evidenceOffline;
+
+  /// No description provided for @evidenceTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The OSM request timed out. Wait at least 30 seconds before a manual refresh.'**
+  String get evidenceTimeout;
+
+  /// No description provided for @evidenceRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'The provider asked us to pause. Wait at least 30 seconds (or longer if requested by the server), then refresh manually.'**
+  String get evidenceRateLimited;
+
+  /// No description provided for @evidenceServiceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The OSM service is unavailable. Wait before refreshing manually.'**
+  String get evidenceServiceUnavailable;
+
+  /// No description provided for @evidenceInvalidResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'The OSM response was invalid or incomplete. Previous cached evidence was kept.'**
+  String get evidenceInvalidResponse;
+
+  /// No description provided for @evidenceResponseTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'The cell response exceeded the development download limit. Previous cached evidence was kept.'**
+  String get evidenceResponseTooLarge;
+
+  /// No description provided for @evidenceCacheFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Some cache data could not be read or saved. Available evidence is shown, but reuse may be incomplete.'**
+  String get evidenceCacheFailure;
+
+  /// No description provided for @evidenceLocalFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The local inspection data could not be loaded. The saved walk is unchanged.'**
+  String get evidenceLocalFailure;
+
+  /// No description provided for @evidenceOldestCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest available cell fetched: {time}. Cached cells are reused until you refresh.'**
+  String evidenceOldestCache(String time);
+
+  /// No description provided for @evidenceGeometryWarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'Geometry limitations: {count} objects. Unparsed elements retained in cache: {unparsed}. Inspect the object list for details.'**
+  String evidenceGeometryWarnings(int count, int unparsed);
+
+  /// No description provided for @evidenceLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue: saved GPS track · dots: accepted samples · green: OSM paths/pedestrian features · orange: roads · teal: areas · purple: relation outlines. Tap to inspect.'**
+  String get evidenceLegend;
+
+  /// No description provided for @evidenceAccuracyToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS accuracy circles'**
+  String get evidenceAccuracyToggle;
+
+  /// No description provided for @evidenceBrowse.
+  ///
+  /// In en, this message translates to:
+  /// **'Inspect data'**
+  String get evidenceBrowse;
+
+  /// No description provided for @evidenceAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About this experiment'**
+  String get evidenceAbout;
+
+  /// No description provided for @evidenceProviderNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Visual basemap: OpenFreeMap (existing development style). Raw OSM evidence overlay: overpass-api.de. Both are development choices; neither selects a production provider. Requests stop after a failure; there are no automatic retries.'**
+  String get evidenceProviderNotice;
+
+  /// No description provided for @evidenceAccuracyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Accuracy circles approximate the saved reported accuracy in meters on a spherical Earth. They are not certainty boundaries or surface classifications. Point markers are only location symbols.'**
+  String get evidenceAccuracyNotice;
+
+  /// No description provided for @evidenceAttribution.
+  ///
+  /// In en, this message translates to:
+  /// **'OSM evidence: © OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright\nBasemap: OpenFreeMap · Evidence service: overpass-api.de'**
+  String get evidenceAttribution;
+
+  /// No description provided for @evidenceMapUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The debug map could not fully load. Inspect data still shows available raw OSM tags and GPS accuracy.'**
+  String get evidenceMapUnavailable;
+
+  /// No description provided for @evidenceUsePlainMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Use plain map (no basemap network access)'**
+  String get evidenceUsePlainMap;
+
+  /// No description provided for @evidenceInspectorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Inspect source evidence only. Nearby objects are not matched to this walk. Expand an OSM object to see its raw tags.'**
+  String get evidenceInspectorHint;
+
+  /// No description provided for @evidenceGpsPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted GPS sample #{sequence}'**
+  String evidenceGpsPoint(int sequence);
+
+  /// No description provided for @evidenceAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported accuracy: {meters} m'**
+  String evidenceAccuracy(num meters);
+
+  /// No description provided for @evidenceFeatureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'OSM {type} {id}'**
+  String evidenceFeatureTitle(String type, int id);
+
+  /// No description provided for @evidenceTagMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'not tagged'**
+  String get evidenceTagMissing;
+
+  /// No description provided for @evidenceGeometryPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Geometry: point'**
+  String get evidenceGeometryPoint;
+
+  /// No description provided for @evidenceGeometryLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Geometry: line / way pieces'**
+  String get evidenceGeometryLine;
+
+  /// No description provided for @evidenceGeometryArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Geometry: closed area'**
+  String get evidenceGeometryArea;
+
+  /// No description provided for @evidenceGeometryRelation.
+  ///
+  /// In en, this message translates to:
+  /// **'Geometry: relation member outlines / points'**
+  String get evidenceGeometryRelation;
+
+  /// No description provided for @evidenceGeometryUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Geometry: unavailable for rendering'**
+  String get evidenceGeometryUnavailable;
+
+  /// No description provided for @evidenceAreaTagged.
+  ///
+  /// In en, this message translates to:
+  /// **'Area semantics are present in the raw tags.'**
+  String get evidenceAreaTagged;
+
+  /// No description provided for @evidenceAreaNotTagged.
+  ///
+  /// In en, this message translates to:
+  /// **'No area semantics are declared in the raw tags.'**
+  String get evidenceAreaNotTagged;
+
+  /// No description provided for @evidenceRelationLimitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Relation members are shown separately. Rings and holes are not assembled or filled; nested relations are not resolved.'**
+  String get evidenceRelationLimitation;
+
+  /// No description provided for @evidenceIncompleteGeometry.
+  ///
+  /// In en, this message translates to:
+  /// **'Some geometry is missing or unsupported. Available pieces are shown without joining gaps.'**
+  String get evidenceIncompleteGeometry;
+
+  /// No description provided for @evidenceRelationMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Raw relation members: {count} (type, ID, role)'**
+  String evidenceRelationMembers(int count);
 }
 
 class _AppLocalizationsDelegate

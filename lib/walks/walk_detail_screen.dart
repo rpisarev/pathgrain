@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../map/evidence/evidence_debug_screen.dart';
 import 'walk_formatters.dart';
 import 'walk_map.dart';
 import 'walk_models.dart';
@@ -29,7 +31,21 @@ class _WalkDetailScreenState extends State<WalkDetailScreen> {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(localizations.walkDetails)),
+      appBar: AppBar(
+        title: Text(localizations.walkDetails),
+        actions: [
+          if (kDebugMode)
+            PopupMenuButton<String>(
+              onSelected: (_) => _openEvidence(),
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'evidence',
+                  child: Text(localizations.surfaceEvidence),
+                ),
+              ],
+            ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(
@@ -81,6 +97,36 @@ class _WalkDetailScreenState extends State<WalkDetailScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _openEvidence() async {
+    if (!kDebugMode) return;
+    final l = AppLocalizations.of(context);
+    final open = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l.surfaceEvidence),
+        content: SingleChildScrollView(child: Text(l.evidencePrivacyNotice)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l.evidenceOpen),
+          ),
+        ],
+      ),
+    );
+    if (open != true || !mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => EvidenceDebugScreen(
+          loadPoints: () => widget.repository.pointsForWalk(widget.walk.id),
+        ),
       ),
     );
   }
