@@ -1,146 +1,165 @@
-# MVP 0.1
+# MVP 0.1 — Surface-aware walk journal
 
-## 1. Product idea
+Status: current milestone
 
-A mobile application for people who enjoy barefoot walking
-or want to explore walking surfaces more consciously.
+## Goal
 
-The app should help answer:
+Turn the existing Prototype 0.0 walk recorder into a surface-aware barefoot
+walk journal.
 
-- Where can I comfortably walk?
-- What surfaces will I encounter?
-- How am I progressing?
-- Are there other people with the same interest in my area?
+MVP 0.1 tests whether automatically derived, correctable surface information
+makes a recorded walk more useful to review. It does not test community or
+social functionality.
 
-The product should normalize the hobby without turning it
-into a public real-time social tracking network.
+## Starting point
 
-## 2. Core user problems
+Prototype 0.0 already provides the Android-first local recording foundation:
 
-Priority problems identified so far:
+- foreground-service location recording;
+- GPS point filtering;
+- SQLite persistence for walks and ordered points;
+- saved walk history;
+- duration and distance calculation;
+- MapLibre review of a saved route.
 
-1. It is difficult to know whether there are other people nearby
-   with the same interest.
-2. Social judgement can make barefoot walking uncomfortable.
-3. Surface conditions are uncertain.
-4. Temporary hazards such as broken glass can make a route unpleasant
-   or unsafe.
+MVP 0.1 must extend this implementation. Rebuilding the recorder is not part of
+the milestone.
 
-## 3. MVP core loop
+## Primary user loop
 
-The main loop is:
+**Record → Analyze surfaces → Review → Correct → Save**
 
-Discover → Walk → Record → Review → Improve map
+1. The user records and stops a walk with the existing recorder.
+2. Pathgrain analyzes the saved route against geographic/OpenStreetMap surface
+   data where possible.
+3. The user reviews the route as surface segments and sees a surface breakdown
+   by distance.
+4. The user corrects a segment whose inferred surface is wrong.
+5. Pathgrain saves the walk, derived surface information, and local correction
+   so the same review is available after restart.
 
-A user:
+## Functional scope
 
-1. Opens the map.
-2. Finds an interesting area or route.
-3. Starts a walk.
-4. The application records the walk.
-5. Surface types are inferred where possible.
-6. After the walk, the user sees a summary.
-7. The user may correct incorrectly detected surface information.
-8. Useful corrections contribute to better surface information.
+### Record and stop
 
-## 4. Walk recording
+- Preserve the existing start, background-oriented recording, stop, history,
+  duration, distance, and route-review behavior.
+- Analyze only a saved walk. Live surface classification is not required.
 
-A walk is a distinct activity/session.
+### Analyze surfaces
 
-Record at minimum:
+- Derive surface information for the recorded route from geographic and/or
+  OpenStreetMap data where the available evidence supports a classification.
+- Divide the complete route into ordered surface segments suitable for review.
+- Assign `unknown` to any portion for which Pathgrain cannot make a defensible
+  classification. Missing, ambiguous, conflicting, or unavailable data must not
+  be converted into a guessed surface.
+- Keep the matching algorithm, confidence rules, and provider choice outside
+  this product specification; they remain technical decisions listed below.
 
-- route
-- start/end
-- duration
-- distance
-- encountered surfaces
+### Review
 
-Possible future statistics must not unnecessarily complicate MVP 0.1.
+- Show the saved route divided into surface segments, with each segment's
+  surface understandable from the map and/or an accompanying label.
+- Show a simple breakdown of distance by surface.
+- Include unknown distance in the breakdown rather than hiding or reallocating
+  it.
+- Keep the breakdown consistent with the saved walk distance, apart from
+  explicitly documented display rounding.
 
-## 5. Surface map
+### Correct and save
 
-The map can represent surface types such as:
+- Let the user select a reviewed segment and replace an incorrect surface label
+  with another supported label.
+- Update the route review and distance breakdown to reflect the correction.
+- Store derived segments and user corrections locally with the walk.
+- Preserve a correction across app restart and protect it from being silently
+  overwritten by automatic re-analysis.
 
-- grass
-- asphalt
-- concrete
-- soil
-- gravel
-- other/unknown
+## Platform scope
 
-Surface information may initially come from external/geographic data
-and may be corrected by users.
+MVP 0.1 is Android-first. The Android experience is the acceptance target.
+iOS remains an intended platform, but completing iOS background recording is
+not required for this milestone.
 
-Example:
+## Privacy and data boundary
 
-If an area is classified as grass but gravel has been spread there,
-the user should be able to correct the walk summary/map information.
+- Ordered GPS points and per-point timestamps remain on the device.
+- Walk history, surface segments, and user corrections remain local in MVP 0.1.
+- No backend, account, cloud synchronization, or community infrastructure is
+  required or permitted for this milestone.
+- Surface-data access must not upload a stored ordered track or its timestamps.
+  If a network source is selected, its request shape, caching, provider terms,
+  attribution, and location-privacy implications must be reviewed explicitly
+  before implementation.
+- GPS coordinates must not be added to analytics, crash reporting, application
+  logs, or telemetry.
 
-## 6. Temporary hazards
+## Explicit non-goals
 
-Users may report temporary hazards such as broken glass.
+MVP 0.1 does not include:
 
-A hazard may be represented as a point or a small area.
+- accounts;
+- a backend;
+- Supabase/PostGIS;
+- cloud synchronization;
+- community activity;
+- live or historical locations of other users;
+- hazard reporting;
+- weather;
+- route recommendations;
+- achievements or gamification;
+- shared or global user corrections;
+- a full pre-walk surface discovery map;
+- iOS background-recording completion.
 
-Hazards must expire rather than remain permanently on the map.
+These ideas may appear in the [product vision](vision.md), but that does not put
+them in the current milestone.
 
-If another user confirms that the hazard is still present,
-its expiration timer starts again.
+## Acceptance criteria
 
-## 7. Community presence
+MVP 0.1 is complete only when all of the following have been demonstrated on
+the Android target:
 
-MVP should show that other barefoot walkers exist without exposing
-their real-time location.
+1. A user can record and stop a walk through the existing recorder, then open
+   that saved walk from history and see its route, duration, and distance.
+2. For a recorded route with supported geographic/OpenStreetMap surface
+   evidence, Pathgrain derives surface information and displays the route as
+   one or more ordered, understandable surface segments.
+3. The same review shows a distance breakdown by surface. The breakdown covers
+   the complete saved route, includes unknown distance, and reconciles with the
+   saved walk distance apart from documented display rounding.
+4. For a route portion without defensible source evidence, the corresponding
+   segment and breakdown use `unknown`; the application does not invent a more
+   specific label.
+5. A user can choose a segment, change an incorrect classification, and
+   immediately see the corrected route review and breakdown.
+6. After the application is fully closed and reopened, the saved walk, derived
+   segments, and correction are still present and the correction still affects
+   the review and breakdown.
+7. The ordered GPS point sequence and point timestamps have remained local;
+   they have not been placed in a remote request, backend, analytics, crash
+   report, log, or telemetry payload.
+8. Existing recorder behavior has not regressed. Release verification includes
+   a physical Android-device walk with Home/screen-lock behavior; record the
+   result rather than assuming simulator or automated coverage proves it.
 
-Allowed direction:
+## Unresolved technical decisions
 
-- aggregated/anonymized indication that barefoot activity has occurred
-  in a city or area
-- anonymous community contributions
+The following must be resolved during implementation planning. This document
+deliberately does not select them:
 
-Not allowed in MVP:
-
-- showing another user's live location
-- showing distance to another barefoot user
-- showing direction to another barefoot user
-- turning the map into a people-tracking system
-
-## 8. Identity and accounts
-
-The app should provide useful functionality without requiring an account
-where practical.
-
-Some online/community functionality may require an account.
-
-Community information should be anonymous by default.
-
-## 9. Places useful for starting/ending barefoot walks
-
-The product may eventually mark convenient transition/rest places.
-
-Example:
-a park bench can be a comfortable place to sit down, remove shoes,
-and continue the walk barefoot.
-
-Exact MVP 0.1 scope for these places remains to be decided.
-
-## 10. Explicit non-goals for MVP 0.1
-
-Do not build yet:
-
-- real-time user tracking
-- dating/social matching
-- complex friend systems
-- competitive gamification
-- large achievement systems
-- advanced route recommendation AI
-- unnecessary backend complexity
-
-## 11. Product principles
-
-- Privacy before social discovery.
-- Community without surveillance.
-- Surfaces are observations, not permanent facts.
-- Temporary hazards must decay.
-- Users must be able to correct automation.
-- Recording a walk should remain simple.
+- which geographic/OpenStreetMap source and provider to use, including terms,
+  attribution, availability, and rate limits;
+- whether source data is downloaded, cached, queried on demand, or made
+  available offline, and how any network query minimizes location disclosure;
+- the on-device route-to-geography matching and segmentation algorithm,
+  confidence thresholds, and behavior for conflicting source features;
+- the initial user-visible surface taxonomy and its mapping from source tags;
+- the local schema and migration for inferred segments, provenance, and user
+  corrections;
+- the correction-selection interaction and minimum editable segment size;
+- analysis progress, failure, retry, caching, and re-analysis behavior,
+  including how a saved correction retains precedence;
+- the distance-allocation and display-rounding rules used by the surface
+  breakdown.
