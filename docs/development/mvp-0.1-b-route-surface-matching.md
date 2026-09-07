@@ -140,16 +140,30 @@ This is evidence filtering, not a legal routing/access engine.
 
 Heading uses up to **two stable neighbors on either side**. The endpoint span
 must be at least max(8 m, 2 × maximum endpoint accuracy). Otherwise direction
-is unavailable. Way direction is the nearest nonzero segment tangent and is
-compared without travel orientation: reversing OSM node order changes nothing.
-Ordinary motor-vehicle oneway tags are not interpreted as pedestrian direction.
-A difference above **55°** rejects a candidate.
+is unavailable. Every intermediate sample in that span must also lie within
+its own reported accuracy of the endpoint chord. A turn or deviation outside
+that envelope disables the chord heading, preventing one unflagged deviation
+from contaminating neighboring independent matches.
+
+Way direction requires a unique nearest nonzero segment tangent. Equally near
+segments with different tangents (for example, a bend vertex) provide no
+direction. Segment endpoints and tied bearings use canonical order, so reversing
+OSM node order cannot choose a different tangent. Areas and unsupported geometry
+provide no direction score. Ordinary motor-vehicle oneway tags are not
+interpreted as pedestrian direction. A difference above **55°** rejects a
+candidate.
+
+Numerical tolerances are centralized alongside the provisional settings:
+distance ties use 10⁻⁶ m, tangent equality uses 10⁻⁵ degrees, and area cross
+products use 10⁻⁶ m². These handle numerical precision; they do not enlarge GPS
+accuracy envelopes. The spike chord floor (1 m) and reduced GPS score (5) are
+also named settings.
 
 | Component | Score |
 | --- | --- |
 | Proximity | 40 × clamp(1 − distance / match radius, 0, 1) |
 | Walking relevance | 20 for the walking allowlist; 8 for the road allowlist |
-| Direction | 20 × clamp(1 − angle / 55°, 0, 1); 0 if unavailable; 10 for a supported area |
+| Direction | 20 × clamp(1 − angle / 55°, 0, 1); 0 if unavailable, including areas |
 | GPS | 10 for stable accuracy ≤10 m; 5 for other stable samples; 0 otherwise |
 | Context | +12 per independently matching immediate neighbor; −6 per neighbor assigned to another object |
 
@@ -165,7 +179,13 @@ differences differ by ≤20°, or either direction is unavailable. This veto als
 applies when their surfaces agree; shared labels do not prove object identity.
 
 The second pass considers only the immediate previous/next **independent**
-winners across stable edges. It never propagates a context-derived winner.
+winners across stable edges. This is a frozen first-pass array, not earlier
+results from the second pass. It never propagates a context-derived winner or
+feeds final selections back into the anchors. Independent here means independent
+of other assignments; nearby headings still share GPS observations, subject to
+the chord-consistency guard above. Determinism assumes the original stored
+sequence: GPS warm-up and recovery intentionally follow chronological order.
+Evidence-list order and OSM node orientation do not choose the winner.
 Both independent neighbors must select the same object to resolve the
 parallel-candidate veto. Different independent winners on opposite sides
 produce UNKNOWN. Context cannot bypass the distance, geometry, GPS, direction

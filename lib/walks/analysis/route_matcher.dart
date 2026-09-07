@@ -176,9 +176,16 @@ abstract final class RouteMatcher {
       math.max(points[start].accuracyMeters, points[end].accuracyMeters) *
           AnalysisSettings.headingAccuracyFactor,
     );
-    return length >= requiredLength
-        ? RouteGeometry.bearing(points[start], points[end])
-        : null;
+    if (length < requiredLength) return null;
+    for (var j = start + 1; j < end; j++) {
+      if (RouteGeometry.lateralOffset(points[start], points[j], points[end]) >
+          points[j].accuracyMeters) {
+        // A long chord alone does not establish a heading through a turn or
+        // deviation. Such a heading could contaminate neighboring anchors.
+        return null;
+      }
+    }
+    return RouteGeometry.bearing(points[start], points[end]);
   }
 
   static MatchCandidate? _candidate(
@@ -193,7 +200,7 @@ abstract final class RouteMatcher {
       return null;
     }
     final pedestrian = _pedestrian(feature);
-    final angle = heading == null || hit.bearing == null
+    final angle = heading == null || hit.bearing == null || !hit.supported
         ? null
         : RouteGeometry.directionDifference(heading, hit.bearing!);
     var reason = pedestrian.reason;
@@ -221,9 +228,7 @@ abstract final class RouteMatcher {
           AnalysisSettings.proximityWeight *
           (1 - hit.distance / _radius(p)).clamp(0.0, 1.0),
       pedestrianScore: pedestrian.score,
-      directionScore: feature.isArea
-          ? AnalysisSettings.areaDirectionWeight
-          : angle == null
+      directionScore: angle == null
           ? 0
           : AnalysisSettings.directionWeight *
                 (1 - angle / AnalysisSettings.maximumDirectionDegrees).clamp(
@@ -234,7 +239,7 @@ abstract final class RouteMatcher {
           ? 0
           : p.accuracyMeters <= AnalysisSettings.strongAccuracyMeters
           ? AnalysisSettings.gpsWeight
-          : AnalysisSettings.gpsWeight / 2,
+          : AnalysisSettings.reducedGpsWeight,
       reason: reason,
     );
   }

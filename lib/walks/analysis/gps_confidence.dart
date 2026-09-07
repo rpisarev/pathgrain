@@ -66,7 +66,9 @@ abstract final class GpsConfidence {
                 AnalysisSettings.spikeOffsetMeters,
                 b.accuracyMeters * AnalysisSettings.spikeAccuracyFactor,
               ) &&
-          detour > AnalysisSettings.spikeDetourRatio * math.max(bypass, 1.0) &&
+          detour >
+              AnalysisSettings.spikeDetourRatio *
+                  math.max(bypass, AnalysisSettings.minimumSpikeChordMeters) &&
           bypass / seconds <= AnalysisSettings.maximumSpeedMetersPerSecond) {
         reasons[i].add(AnalysisReason.isolatedSpike);
       }

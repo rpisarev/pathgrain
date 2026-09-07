@@ -83,7 +83,7 @@ abstract final class RouteGeometry {
   static GeometryHit inspect(OsmFeature feature, GeoCoordinate point) {
     const zero = math.Point(0.0, 0.0);
     var distance = double.infinity;
-    double? bearing;
+    final segments = <({double distance, double bearing})>[];
     var local =
         point.isValid &&
         point.latitude.abs() <= AnalysisSettings.maximumLatitude;
@@ -106,22 +106,43 @@ abstract final class RouteGeometry {
         distance = math.min(distance, projected.single.magnitude);
       }
       for (var i = 1; i < projected.length; i++) {
-        final a = projected[i - 1];
-        final b = projected[i];
+        var a = projected[i - 1];
+        var b = projected[i];
         if (a == b) continue;
-        final d = segmentDistance(zero, a, b);
-        if (d < distance) {
-          distance = d;
-          bearing = math.atan2(b.y - a.y, b.x - a.x);
+        // Canonical endpoints also avoid reversed-segment roundoff differences.
+        if (a.x > b.x || (a.x == b.x && a.y > b.y)) {
+          final swap = a;
+          a = b;
+          b = swap;
         }
+        final d = segmentDistance(zero, a, b);
+        distance = math.min(distance, d);
+        segments.add((distance: d, bearing: math.atan2(b.y - a.y, b.x - a.x)));
       }
+    }
+    final nearestBearings = [
+      for (final segment in segments)
+        if (segment.distance <=
+            distance + AnalysisSettings.geometryDistanceToleranceMeters)
+          segment.bearing,
+    ]..sort();
+    double? bearing = nearestBearings.firstOrNull;
+    if (bearing != null &&
+        nearestBearings.any(
+          (other) =>
+              directionDifference(bearing!, other) >
+              AnalysisSettings.geometryAngleToleranceDegrees,
+        )) {
+      // A bend/intersection has no unique tangent. Never select whichever
+      // segment happened to appear first in the source geometry.
+      bearing = null;
     }
     var supported =
         local &&
         feature.type == OsmElementType.way &&
         feature.limitations.isEmpty &&
         parts.length == 1 &&
-        bearing != null;
+        segments.isNotEmpty;
     var inside = false;
     if (feature.isArea) {
       supported =
@@ -161,7 +182,9 @@ abstract final class RouteGeometry {
     for (var i = 1; i < ring.length; i++) {
       for (final vertex in vertices) {
         final cross = _cross(ring[i - 1], ring[i], vertex);
-        if (cross.abs() < 1e-6) continue;
+        if (cross.abs() < AnalysisSettings.geometryCrossToleranceSquareMeters) {
+          continue;
+        }
         final next = cross > 0 ? 1 : -1;
         if (sign != 0 && sign != next) return false;
         sign = next;
@@ -177,7 +200,9 @@ abstract final class RouteGeometry {
     var sign = 0;
     for (var i = 1; i < ring.length; i++) {
       final cross = _cross(ring[i - 1], ring[i], p);
-      if (cross.abs() < 1e-6) continue;
+      if (cross.abs() < AnalysisSettings.geometryCrossToleranceSquareMeters) {
+        continue;
+      }
       final next = cross > 0 ? 1 : -1;
       if (sign != 0 && sign != next) return false;
       sign = next;

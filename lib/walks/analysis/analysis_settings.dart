@@ -10,6 +10,7 @@ abstract final class AnalysisSettings {
   static const spikeOffsetMeters = 10.0;
   static const spikeAccuracyFactor = 0.8;
   static const spikeDetourRatio = 1.8;
+  static const minimumSpikeChordMeters = 1.0;
 
   static const candidateRadiusMeters = 40.0;
   static const minimumMatchRadiusMeters = 8.0;
@@ -31,11 +32,16 @@ abstract final class AnalysisSettings {
   static const pedestrianWeight = 20.0;
   static const roadWeight = 8.0;
   static const directionWeight = 20.0;
-  static const areaDirectionWeight = 10.0;
   static const gpsWeight = 10.0;
+  static const reducedGpsWeight = 5.0;
   static const neighborSupportWeight = 12.0;
   static const neighborConflictWeight = 6.0;
   static const minimumScore = 62.0;
   static const minimumMargin = 12.0;
   static const strongMargin = 20.0;
+
+  // Numerical tolerances, not additional GPS uncertainty allowances.
+  static const geometryDistanceToleranceMeters = 1e-6;
+  static const geometryAngleToleranceDegrees = 1e-5;
+  static const geometryCrossToleranceSquareMeters = 1e-6;
 }
