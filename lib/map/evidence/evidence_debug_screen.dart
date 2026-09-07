@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../walks/walk_models.dart';
+import '../../walks/analysis/route_analysis.dart';
+import '../../walks/analysis/route_matcher.dart';
 import 'evidence_cache.dart';
 import 'evidence_inspector.dart';
 import 'evidence_map.dart';
@@ -43,6 +45,9 @@ class _EvidenceDebugScreenState extends State<EvidenceDebugScreen> {
   bool _busy = true;
   bool _localFailure = false;
   bool _showAccuracy = false;
+  bool _showAnalysis = false;
+  int? _selectedSequence;
+  RouteAnalysis? _analysis;
   bool _useBasemap = true;
 
   @override
@@ -82,6 +87,7 @@ class _EvidenceDebugScreenState extends State<EvidenceDebugScreen> {
     setState(() {
       _busy = true;
       _localFailure = false;
+      _analysis = null;
     });
     try {
       final coordinates = _points.map(
@@ -92,7 +98,20 @@ class _EvidenceDebugScreenState extends State<EvidenceDebugScreen> {
         refresh: refresh,
       )) {
         if (!mounted) break;
-        setState(() => _snapshot = snapshot);
+        final analysis = snapshot.isLoading
+            ? null
+            : RouteMatcher.analyze(
+                _points,
+                snapshot.features,
+                evidenceComplete:
+                    snapshot.totalCells > 0 &&
+                    snapshot.availableCells == snapshot.totalCells &&
+                    snapshot.unparsedElements == 0,
+              );
+        setState(() {
+          _snapshot = snapshot;
+          _analysis = analysis;
+        });
       }
     } catch (_) {
       if (mounted) setState(() => _localFailure = true);
@@ -120,11 +139,19 @@ class _EvidenceDebugScreenState extends State<EvidenceDebugScreen> {
   }
 
   void _showInspector(Set<String>? keys, Set<int>? sequences) {
+    if (sequences?.length == 1) {
+      setState(() => _selectedSequence = sequences!.single);
+    }
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       builder: (context) => EvidenceInspector(
+        analysis: _analysis,
+        onSelectSample: (sequence) => setState(() {
+          _selectedSequence = sequence;
+          _showAnalysis = true;
+        }),
         features: _snapshot.features
             .where((feature) => keys == null || keys.contains(feature.key))
             .toList(),
@@ -207,6 +234,15 @@ class _EvidenceDebugScreenState extends State<EvidenceDebugScreen> {
                         ),
                       ),
                     Text(
+                      l.analysisNotice,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    if (_showAnalysis)
+                      Text(
+                        l.analysisLegend,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    Text(
                       l.evidenceLegend,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
@@ -235,6 +271,13 @@ class _EvidenceDebugScreenState extends State<EvidenceDebugScreen> {
                     selected: _showAccuracy,
                     onSelected: (value) =>
                         setState(() => _showAccuracy = value),
+                  ),
+                  FilterChip(
+                    label: Text(l.analysisToggle),
+                    selected: _showAnalysis,
+                    onSelected: _analysis == null
+                        ? null
+                        : (value) => setState(() => _showAnalysis = value),
                   ),
                   TextButton.icon(
                     icon: const Icon(Icons.list_alt),
@@ -288,6 +331,9 @@ class _EvidenceDebugScreenState extends State<EvidenceDebugScreen> {
       points: _points,
       features: _snapshot.features,
       showAccuracy: _showAccuracy,
+      analysis: _analysis,
+      showAnalysis: _showAnalysis,
+      selectedSequence: _selectedSequence,
       onInspect: _showInspector,
       useBasemap: _useBasemap,
       onUsePlainMap: () => setState(() => _useBasemap = false),

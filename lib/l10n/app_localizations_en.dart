@@ -193,11 +193,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get evidenceLoaded =>
-      'OSM evidence loaded. No surface has been assigned to this walk.';
+      'OSM evidence loaded. Local analysis is available for inspection.';
 
   @override
   String get evidenceEmpty =>
-      'No relevant OSM evidence returned. No surface has been assigned.';
+      'No relevant OSM evidence returned. Surface analysis remains UNKNOWN.';
 
   @override
   String evidencePartialFailure(int count) {
@@ -295,7 +295,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get evidenceInspectorHint =>
-      'Inspect source evidence only. Nearby objects are not matched to this walk. Expand an OSM object to see its raw tags.';
+      'Expand a GPS sample to inspect its local analysis and highlight it on the map. Expand OSM objects for raw tags.';
 
   @override
   String evidenceGpsPoint(int sequence) {
@@ -355,5 +355,166 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String evidenceRelationMembers(int count) {
     return 'Raw relation members: $count (type, ID, role)';
+  }
+
+  @override
+  String get analysisToggle => 'Matching / UNKNOWN';
+
+  @override
+  String get analysisNotice =>
+      '0.1-B local experiment. Expand GPS samples to inspect provisional matches; results are not saved.';
+
+  @override
+  String get analysisLegend =>
+      'Cyan: matched OSM geometry · magenta: selected sample/object · red rings and offset dashes: UNKNOWN samples/edges. Blue remains the stored GPS route.';
+
+  @override
+  String get analysisNoObject => 'none';
+
+  @override
+  String analysisSelected(String key) {
+    return 'Selected OSM object: $key';
+  }
+
+  @override
+  String analysisResult(String assignment, String surface) {
+    return '$assignment · $surface';
+  }
+
+  @override
+  String analysisCandidates(int count) {
+    return 'Nearby candidates: $count. Scores are experimental support, not probabilities.';
+  }
+
+  @override
+  String analysisCandidateSummary(String score, String distance) {
+    return 'Score $score · distance $distance m';
+  }
+
+  @override
+  String analysisScoreComponents(
+    String proximity,
+    String pedestrian,
+    String direction,
+    String gps,
+    String continuity,
+  ) {
+    return 'Proximity $proximity · walking relevance $pedestrian · direction $direction · GPS $gps · continuity $continuity';
+  }
+
+  @override
+  String analysisDirection(String angle) {
+    return 'Direction difference: $angle° (either travel direction)';
+  }
+
+  @override
+  String get analysisDirectionUnavailable =>
+      'Direction unavailable or not meaningful for an area';
+
+  @override
+  String analysisEdge(int from, int to, String speed) {
+    return 'Stored edge #$from → #$to · $speed m/s';
+  }
+
+  @override
+  String analysisEdgeGps(String reason) {
+    return 'Edge GPS: $reason';
+  }
+
+  @override
+  String analysisReason(String value) {
+    String _temp0 = intl.Intl.selectLogic(value, {
+      'stable': 'Stable sequence',
+      'warmingUp': 'Waiting for a consecutive sequence of good samples',
+      'recovering': 'Re-establishing a stable sequence after uncertainty',
+      'invalidSample': 'Invalid accuracy, coordinates, or unsupported latitude',
+      'reducedAccuracy': 'Reported accuracy is outside the stable range',
+      'poorAccuracy': 'Poor reported accuracy',
+      'fastMotion': 'Apparent motion exceeds the provisional speed limit; both endpoints are uncertain',
+      'isolatedSpike': 'Isolated detour from the neighboring samples',
+      'sequenceGap': 'Invalid time/order or a long gap',
+      'uncertainEndpoint': 'At least one endpoint lacks stable GPS confidence',
+      'eligible': 'Eligible walking candidate',
+      'unsupportedGeometry':
+          'Geometry is outside the experiment’s supported limits',
+      'notPedestrian': 'Walking relevance is not established',
+      'accessRestricted': 'Access tags do not support walking here',
+      'conditionalAccess': 'Conditional access is not interpreted',
+      'separateSidewalk': 'Road centerline cannot locate its tagged sidewalk',
+      'tooFar': 'Outside the bounded matching radius',
+      'directionConflict': 'The candidate direction is incompatible',
+      'areaBoundary': 'GPS uncertainty reaches the area boundary',
+      'gpsUncertain': 'UNKNOWN: GPS sequence is not stable',
+      'evidenceIncomplete':
+          'UNKNOWN: some evidence cells or elements are unavailable',
+      'noCandidate': 'UNKNOWN: no eligible nearby candidate',
+      'weakScore': 'UNKNOWN: candidate support is too weak',
+      'ambiguousCandidates':
+          'UNKNOWN: competing geometries cannot be distinguished',
+      'conflictingNeighbors':
+          'UNKNOWN: independent neighboring assignments disagree',
+      'matched': 'Defensible winner within the loaded evidence',
+      'continuitySupported': 'Supported by independent neighboring matches',
+      'differentObjects': 'UNKNOWN edge: endpoint OSM objects differ',
+      'edgeOffGeometry':
+          'UNKNOWN edge: intermediate probes leave the candidate geometry',
+      'explicitSurface': 'Explicit supported surface tag on the matched object',
+      'grassLandcover':
+          'Inferred from grass landcover on this same pedestrian area',
+      'missingSurface':
+          'UNKNOWN: surface is missing and no inference rule applies',
+      'unsupportedSurface':
+          'UNKNOWN: broad, mixed, or unsupported surface value',
+      'conflictingSurface': 'UNKNOWN: conflicting or scoped surface evidence',
+      'other': 'Unknown reason',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String analysisGpsState(String value) {
+    String _temp0 = intl.Intl.selectLogic(value, {
+      'stable': 'GPS: stable',
+      'warmingUp': 'GPS: warming up',
+      'recovering': 'GPS: recovering',
+      'unreliable': 'GPS: unreliable',
+      'other': 'GPS: unknown',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String analysisSurface(String value) {
+    String _temp0 = intl.Intl.selectLogic(value, {
+      'grass': 'Grass',
+      'asphalt': 'Asphalt',
+      'concrete': 'Concrete',
+      'ground': 'Soil / ground',
+      'gravel': 'Gravel',
+      'pavingStones': 'Paving stones',
+      'unknown': 'Unknown surface',
+      'other': 'Other known material',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String analysisAssignment(String value) {
+    String _temp0 = intl.Intl.selectLogic(value, {
+      'direct': 'DIRECT',
+      'inferred': 'INFERRED',
+      'other': 'UNKNOWN',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String analysisConfidence(String value) {
+    String _temp0 = intl.Intl.selectLogic(value, {
+      'strong': 'Match confidence: strong evidence support (experimental)',
+      'supported': 'Match confidence: supported (experimental)',
+      'other': 'Match confidence: none',
+    });
+    return '$_temp0';
   }
 }

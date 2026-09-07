@@ -195,11 +195,11 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get evidenceLoaded =>
-      'Дані OSM завантажено. Покриття цієї прогулянки ще не визначено.';
+      'Дані OSM завантажено. Локальний аналіз доступний для перегляду.';
 
   @override
   String get evidenceEmpty =>
-      'Відповідних даних OSM не знайдено. Покриття не визначено.';
+      'Відповідних даних OSM немає. Аналіз покриття залишається UNKNOWN.';
 
   @override
   String evidencePartialFailure(int count) {
@@ -298,7 +298,7 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get evidenceInspectorHint =>
-      'Це лише перегляд вихідних даних. Об’єкти поблизу не зіставлено з прогулянкою. Розгорніть об’єкт OSM, щоб побачити сирі теги.';
+      'Розгорніть зразок GPS для перегляду локального аналізу та виділення на карті. Розгорніть об’єкти OSM для перегляду сирих тегів.';
 
   @override
   String evidenceGpsPoint(int sequence) {
@@ -356,5 +356,168 @@ class AppLocalizationsUk extends AppLocalizations {
   @override
   String evidenceRelationMembers(int count) {
     return 'Сирі учасники відношення: $count (тип, ID, роль)';
+  }
+
+  @override
+  String get analysisToggle => 'Зіставлення / UNKNOWN';
+
+  @override
+  String get analysisNotice =>
+      'Локальний експеримент 0.1-B. Розгорніть зразки GPS для перегляду попередніх зіставлень; результати не зберігаються.';
+
+  @override
+  String get analysisLegend =>
+      'Блакитний: зіставлена геометрія OSM · малиновий: вибраний зразок/об’єкт · червоні кільця та зміщені штрихи: UNKNOWN зразки/відрізки. Синій — збережений маршрут GPS.';
+
+  @override
+  String get analysisNoObject => 'немає';
+
+  @override
+  String analysisSelected(String key) {
+    return 'Вибраний об’єкт OSM: $key';
+  }
+
+  @override
+  String analysisResult(String assignment, String surface) {
+    return '$assignment · $surface';
+  }
+
+  @override
+  String analysisCandidates(int count) {
+    return 'Кандидати поблизу: $count. Бали — експериментальна підтримка, не ймовірність.';
+  }
+
+  @override
+  String analysisCandidateSummary(String score, String distance) {
+    return 'Бал $score · відстань $distance м';
+  }
+
+  @override
+  String analysisScoreComponents(
+    String proximity,
+    String pedestrian,
+    String direction,
+    String gps,
+    String continuity,
+  ) {
+    return 'Близькість $proximity · придатність для ходьби $pedestrian · напрямок $direction · GPS $gps · безперервність $continuity';
+  }
+
+  @override
+  String analysisDirection(String angle) {
+    return 'Відмінність напрямку: $angle° (в обох напрямках руху)';
+  }
+
+  @override
+  String get analysisDirectionUnavailable =>
+      'Напрямок недоступний або не має значення для ділянки';
+
+  @override
+  String analysisEdge(int from, int to, String speed) {
+    return 'Збережений відрізок №$from → №$to · $speed м/с';
+  }
+
+  @override
+  String analysisEdgeGps(String reason) {
+    return 'GPS відрізка: $reason';
+  }
+
+  @override
+  String analysisReason(String value) {
+    String _temp0 = intl.Intl.selectLogic(value, {
+      'stable': 'Стабільна послідовність',
+      'warmingUp': 'Очікування послідовності якісних зразків',
+      'recovering': 'Відновлення стабільної послідовності після невизначеності',
+      'invalidSample':
+          'Некоректна точність, координати або непідтримувана широта',
+      'reducedAccuracy': 'Заявлена похибка виходить за стабільний діапазон',
+      'poorAccuracy': 'Низька заявлена точність',
+      'fastMotion': 'Видимий рух перевищує попередню межу швидкості; обидві кінцеві точки непевні',
+      'isolatedSpike': 'Ізольоване відхилення від сусідніх зразків',
+      'sequenceGap': 'Некоректний час/порядок або тривалий проміжок',
+      'uncertainEndpoint':
+          'Принаймні одна кінцева точка не має стабільної довіри до GPS',
+      'eligible': 'Придатний кандидат для ходьби',
+      'unsupportedGeometry':
+          'Геометрія виходить за підтримувані межі експерименту',
+      'notPedestrian': 'Придатність для ходьби не встановлена',
+      'accessRestricted': 'Теги доступу не підтверджують можливість ходьби тут',
+      'conditionalAccess': 'Умовний доступ не інтерпретується',
+      'separateSidewalk':
+          'Ось дороги не визначає розташування позначеного тротуару',
+      'tooFar': 'Поза обмеженим радіусом зіставлення',
+      'directionConflict': 'Напрямок кандидата несумісний',
+      'areaBoundary': 'Невизначеність GPS сягає межі ділянки',
+      'gpsUncertain': 'UNKNOWN: послідовність GPS нестабільна',
+      'evidenceIncomplete':
+          'UNKNOWN: частина комірок або елементів даних недоступна',
+      'noCandidate': 'UNKNOWN: немає придатного кандидата поблизу',
+      'weakScore': 'UNKNOWN: підтримка кандидата надто слабка',
+      'ambiguousCandidates':
+          'UNKNOWN: неможливо розрізнити конкуруючі геометрії',
+      'conflictingNeighbors': 'UNKNOWN: незалежні призначення сусідніх зразків суперечать одне одному',
+      'matched': 'Обґрунтований вибір серед завантажених даних',
+      'continuitySupported': 'Підтримано незалежними збігами сусідніх зразків',
+      'differentObjects': 'UNKNOWN для відрізка: різні об’єкти OSM на кінцях',
+      'edgeOffGeometry': 'UNKNOWN для відрізка: проміжні перевірки виходять за геометрію кандидата',
+      'explicitSurface':
+          'Явний підтримуваний тег surface на зіставленому об’єкті',
+      'grassLandcover':
+          'Виведено з трав’яного покриву на цій самій пішохідній ділянці',
+      'missingSurface': 'UNKNOWN: тег surface відсутній і правило виведення не застосовується',
+      'unsupportedSurface':
+          'UNKNOWN: загальне, змішане або непідтримуване значення surface',
+      'conflictingSurface':
+          'UNKNOWN: суперечливі або обмежені умовами дані про покриття',
+      'other': 'Невідома причина',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String analysisGpsState(String value) {
+    String _temp0 = intl.Intl.selectLogic(value, {
+      'stable': 'GPS: стабільний',
+      'warmingUp': 'GPS: початкова стабілізація',
+      'recovering': 'GPS: відновлення',
+      'unreliable': 'GPS: ненадійний',
+      'other': 'GPS: невідомо',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String analysisSurface(String value) {
+    String _temp0 = intl.Intl.selectLogic(value, {
+      'grass': 'Трава',
+      'asphalt': 'Асфальт',
+      'concrete': 'Бетон',
+      'ground': 'Ґрунт / земля',
+      'gravel': 'Гравій',
+      'pavingStones': 'Бруківка',
+      'unknown': 'Невідоме покриття',
+      'other': 'Інший відомий матеріал',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String analysisAssignment(String value) {
+    String _temp0 = intl.Intl.selectLogic(value, {
+      'direct': 'DIRECT (явні дані)',
+      'inferred': 'INFERRED (виведено)',
+      'other': 'UNKNOWN',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String analysisConfidence(String value) {
+    String _temp0 = intl.Intl.selectLogic(value, {
+      'strong': 'Довіра до зіставлення: сильна підтримка даними (експеримент)',
+      'supported': 'Довіра до зіставлення: підтримано даними (експеримент)',
+      'other': 'Довіра до зіставлення: немає',
+    });
+    return '$_temp0';
   }
 }

@@ -395,13 +395,13 @@ abstract class AppLocalizations {
   /// No description provided for @evidenceLoaded.
   ///
   /// In en, this message translates to:
-  /// **'OSM evidence loaded. No surface has been assigned to this walk.'**
+  /// **'OSM evidence loaded. Local analysis is available for inspection.'**
   String get evidenceLoaded;
 
   /// No description provided for @evidenceEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No relevant OSM evidence returned. No surface has been assigned.'**
+  /// **'No relevant OSM evidence returned. Surface analysis remains UNKNOWN.'**
   String get evidenceEmpty;
 
   /// No description provided for @evidencePartialFailure.
@@ -545,7 +545,7 @@ abstract class AppLocalizations {
   /// No description provided for @evidenceInspectorHint.
   ///
   /// In en, this message translates to:
-  /// **'Inspect source evidence only. Nearby objects are not matched to this walk. Expand an OSM object to see its raw tags.'**
+  /// **'Expand a GPS sample to inspect its local analysis and highlight it on the map. Expand OSM objects for raw tags.'**
   String get evidenceInspectorHint;
 
   /// No description provided for @evidenceGpsPoint.
@@ -631,6 +631,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Raw relation members: {count} (type, ID, role)'**
   String evidenceRelationMembers(int count);
+
+  /// No description provided for @analysisToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Matching / UNKNOWN'**
+  String get analysisToggle;
+
+  /// No description provided for @analysisNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'0.1-B local experiment. Expand GPS samples to inspect provisional matches; results are not saved.'**
+  String get analysisNotice;
+
+  /// No description provided for @analysisLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Cyan: matched OSM geometry · magenta: selected sample/object · red rings and offset dashes: UNKNOWN samples/edges. Blue remains the stored GPS route.'**
+  String get analysisLegend;
+
+  /// No description provided for @analysisNoObject.
+  ///
+  /// In en, this message translates to:
+  /// **'none'**
+  String get analysisNoObject;
+
+  /// No description provided for @analysisSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected OSM object: {key}'**
+  String analysisSelected(String key);
+
+  /// No description provided for @analysisResult.
+  ///
+  /// In en, this message translates to:
+  /// **'{assignment} · {surface}'**
+  String analysisResult(String assignment, String surface);
+
+  /// No description provided for @analysisCandidates.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby candidates: {count}. Scores are experimental support, not probabilities.'**
+  String analysisCandidates(int count);
+
+  /// No description provided for @analysisCandidateSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Score {score} · distance {distance} m'**
+  String analysisCandidateSummary(String score, String distance);
+
+  /// No description provided for @analysisScoreComponents.
+  ///
+  /// In en, this message translates to:
+  /// **'Proximity {proximity} · walking relevance {pedestrian} · direction {direction} · GPS {gps} · continuity {continuity}'**
+  String analysisScoreComponents(
+    String proximity,
+    String pedestrian,
+    String direction,
+    String gps,
+    String continuity,
+  );
+
+  /// No description provided for @analysisDirection.
+  ///
+  /// In en, this message translates to:
+  /// **'Direction difference: {angle}° (either travel direction)'**
+  String analysisDirection(String angle);
+
+  /// No description provided for @analysisDirectionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Direction unavailable or not meaningful for an area'**
+  String get analysisDirectionUnavailable;
+
+  /// No description provided for @analysisEdge.
+  ///
+  /// In en, this message translates to:
+  /// **'Stored edge #{from} → #{to} · {speed} m/s'**
+  String analysisEdge(int from, int to, String speed);
+
+  /// No description provided for @analysisEdgeGps.
+  ///
+  /// In en, this message translates to:
+  /// **'Edge GPS: {reason}'**
+  String analysisEdgeGps(String reason);
+
+  /// No description provided for @analysisReason.
+  ///
+  /// In en, this message translates to:
+  /// **'{value, select, stable{Stable sequence} warmingUp{Waiting for a consecutive sequence of good samples} recovering{Re-establishing a stable sequence after uncertainty} invalidSample{Invalid accuracy, coordinates, or unsupported latitude} reducedAccuracy{Reported accuracy is outside the stable range} poorAccuracy{Poor reported accuracy} fastMotion{Apparent motion exceeds the provisional speed limit; both endpoints are uncertain} isolatedSpike{Isolated detour from the neighboring samples} sequenceGap{Invalid time/order or a long gap} uncertainEndpoint{At least one endpoint lacks stable GPS confidence} eligible{Eligible walking candidate} unsupportedGeometry{Geometry is outside the experiment’s supported limits} notPedestrian{Walking relevance is not established} accessRestricted{Access tags do not support walking here} conditionalAccess{Conditional access is not interpreted} separateSidewalk{Road centerline cannot locate its tagged sidewalk} tooFar{Outside the bounded matching radius} directionConflict{The candidate direction is incompatible} areaBoundary{GPS uncertainty reaches the area boundary} gpsUncertain{UNKNOWN: GPS sequence is not stable} evidenceIncomplete{UNKNOWN: some evidence cells or elements are unavailable} noCandidate{UNKNOWN: no eligible nearby candidate} weakScore{UNKNOWN: candidate support is too weak} ambiguousCandidates{UNKNOWN: competing geometries cannot be distinguished} conflictingNeighbors{UNKNOWN: independent neighboring assignments disagree} matched{Defensible winner within the loaded evidence} continuitySupported{Supported by independent neighboring matches} differentObjects{UNKNOWN edge: endpoint OSM objects differ} edgeOffGeometry{UNKNOWN edge: intermediate probes leave the candidate geometry} explicitSurface{Explicit supported surface tag on the matched object} grassLandcover{Inferred from grass landcover on this same pedestrian area} missingSurface{UNKNOWN: surface is missing and no inference rule applies} unsupportedSurface{UNKNOWN: broad, mixed, or unsupported surface value} conflictingSurface{UNKNOWN: conflicting or scoped surface evidence} other{Unknown reason}}'**
+  String analysisReason(String value);
+
+  /// No description provided for @analysisGpsState.
+  ///
+  /// In en, this message translates to:
+  /// **'{value, select, stable{GPS: stable} warmingUp{GPS: warming up} recovering{GPS: recovering} unreliable{GPS: unreliable} other{GPS: unknown}}'**
+  String analysisGpsState(String value);
+
+  /// No description provided for @analysisSurface.
+  ///
+  /// In en, this message translates to:
+  /// **'{value, select, grass{Grass} asphalt{Asphalt} concrete{Concrete} ground{Soil / ground} gravel{Gravel} pavingStones{Paving stones} unknown{Unknown surface} other{Other known material}}'**
+  String analysisSurface(String value);
+
+  /// No description provided for @analysisAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'{value, select, direct{DIRECT} inferred{INFERRED} other{UNKNOWN}}'**
+  String analysisAssignment(String value);
+
+  /// No description provided for @analysisConfidence.
+  ///
+  /// In en, this message translates to:
+  /// **'{value, select, strong{Match confidence: strong evidence support (experimental)} supported{Match confidence: supported (experimental)} other{Match confidence: none}}'**
+  String analysisConfidence(String value);
 }
 
 class _AppLocalizationsDelegate

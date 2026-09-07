@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../walks/walk_models.dart';
+import '../../walks/analysis/route_analysis.dart';
+import 'analysis_details.dart';
 import 'osm_evidence.dart';
 
 class EvidenceInspector extends StatelessWidget {
@@ -9,14 +11,22 @@ class EvidenceInspector extends StatelessWidget {
     super.key,
     required this.points,
     required this.features,
+    this.analysis,
+    this.onSelectSample,
   });
 
   final List<WalkPoint> points;
   final List<OsmFeature> features;
+  final RouteAnalysis? analysis;
+  final ValueChanged<int>? onSelectSample;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final samples = {
+      for (final sample in analysis?.samples ?? <SampleAnalysis>[])
+        sample.original.sequence: sample,
+    };
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.6,
@@ -39,6 +49,29 @@ class EvidenceInspector extends StatelessWidget {
             }
             if (index <= points.length) {
               final point = points[index - 1];
+              final sample = samples[point.sequence];
+              if (sample != null) {
+                return ExpansionTile(
+                  key: ValueKey('analysis-sample-${point.sequence}'),
+                  leading: const Icon(Icons.gps_fixed),
+                  title: Text(l.evidenceGpsPoint(point.sequence)),
+                  subtitle: Text(l.evidenceAccuracy(point.accuracyMeters)),
+                  onExpansionChanged: (expanded) {
+                    if (expanded) onSelectSample?.call(point.sequence);
+                  },
+                  children: [
+                    AnalysisDetails(
+                      sample: sample,
+                      edges: [
+                        for (final edge in analysis!.edges)
+                          if (edge.from.original.sequence == point.sequence ||
+                              edge.to.original.sequence == point.sequence)
+                            edge,
+                      ],
+                    ),
+                  ],
+                );
+              }
               return ListTile(
                 leading: const Icon(Icons.gps_fixed),
                 title: Text(l.evidenceGpsPoint(point.sequence)),

@@ -1,11 +1,15 @@
 # MVP 0.1-A — OSM map evidence
 
-Status: implemented for development inspection; physical Android field
-verification is outstanding. This is not completion of the full MVP 0.1.
+Status: implemented for development inspection. User-reported Pixel GPS
+observations from 2026-09-07 inform the subsequent
+[0.1-B matching experiment](mvp-0.1-b-route-surface-matching.md); native diagnostic
+map/cache and Home/screen-lock verification are still outstanding. This is not
+completion of the full MVP 0.1.
 
 This development slice makes OSM evidence observable around an already saved
-walk. It does not match a walk to an OSM object or assign a surface. Prototype
-0.0 recording, filtering, foreground location service, walk SQLite schema,
+walk. On its own, 0.1-A does not match a walk to an OSM object or assign a surface;
+0.1-B extends the same diagnostic view with local experimental analysis.
+Prototype 0.0 recording, filtering, foreground location service, walk SQLite schema,
 history, and ordinary MapLibre route review remain the foundation.
 
 ## Flow and boundaries
@@ -236,12 +240,16 @@ existing recorder/database tests; and `flutter build apk --debug` succeeded.
 The APK is at `build/app/outputs/flutter-apk/app-debug.apk`. The Android build
 reported Gradle's Java native-access warning and a warning that `maplibre_gl`
 still applies Kotlin Gradle Plugin and needs future Built-in Kotlin migration.
-No physical device test or live Overpass query was performed for this slice.
+No physical device test or live Overpass query was performed during that
+implementation verification. Subsequent user-reported Pixel GPS aggregates are
+recorded in the 0.1-B note; they do not establish the native diagnostic behaviors
+listed in the field procedure above.
 
-Deferred to 0.1-B/later slices: nearest-way/map matching, candidate/direction/
-continuity scoring, GPS confidence rules, DIRECT/INFERRED/UNKNOWN assignment,
-canonical surface taxonomy, route-to-surface assignment, segmentation, surface
-distance breakdown, user corrections, and automatic analysis after Stop.
+The subsequent [0.1-B experiment](mvp-0.1-b-route-surface-matching.md) adds local
+candidate/direction/continuity scoring, GPS confidence, DIRECT/INFERRED/UNKNOWN
+assignment and a provisional canonical taxonomy in this diagnostic view.
+Final segmentation, surface distance breakdown, user corrections, derived-data
+persistence and automatic analysis after Stop remain deferred.
 Backend, community, synchronization, and production map infrastructure are
 outside this slice. The full MVP 0.1 loop is not complete merely because this
 diagnostic evidence view exists.

@@ -7,6 +7,8 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../walks/walk_models.dart';
+import '../../walks/analysis/route_analysis.dart';
+import 'analysis_geojson.dart';
 import '../development_map_style.dart';
 import 'evidence_geojson.dart';
 import 'osm_evidence.dart';
@@ -18,6 +20,9 @@ class EvidenceMap extends StatefulWidget {
     required this.features,
     required this.showAccuracy,
     required this.onInspect,
+    this.analysis,
+    this.showAnalysis = false,
+    this.selectedSequence,
     this.useBasemap = true,
     this.onUsePlainMap,
   });
@@ -25,6 +30,9 @@ class EvidenceMap extends StatefulWidget {
   final List<WalkPoint> points;
   final List<OsmFeature> features;
   final bool showAccuracy;
+  final RouteAnalysis? analysis;
+  final bool showAnalysis;
+  final int? selectedSequence;
   final bool useBasemap;
   final VoidCallback? onUsePlainMap;
   final void Function(Set<String> featureKeys, Set<int> sequences) onInspect;
@@ -45,6 +53,10 @@ class _EvidenceMapState extends State<EvidenceMap> {
     'evidence-lines',
     'evidence-areas',
     'gps-samples',
+    'analysis-matches',
+    'analysis-unknown-edges',
+    'analysis-unknown-samples',
+    'analysis-focus',
   ];
 
   @override
@@ -60,7 +72,10 @@ class _EvidenceMapState extends State<EvidenceMap> {
     super.didUpdateWidget(oldWidget);
     if (_ready &&
         (oldWidget.features != widget.features ||
-            oldWidget.showAccuracy != widget.showAccuracy)) {
+            oldWidget.showAccuracy != widget.showAccuracy ||
+            oldWidget.analysis != widget.analysis ||
+            oldWidget.showAnalysis != widget.showAnalysis ||
+            oldWidget.selectedSequence != widget.selectedSequence)) {
       _queueUpdate();
     }
   }
@@ -142,6 +157,16 @@ class _EvidenceMapState extends State<EvidenceMap> {
         'gps-accuracy',
         EvidenceGeoJson.collection([]),
       );
+      for (final source in [
+        'analysis-matches',
+        'analysis-unknown',
+        'analysis-focus',
+      ]) {
+        await controller.addGeoJsonSource(
+          source,
+          EvidenceGeoJson.collection([]),
+        );
+      }
       await controller.addFillLayer(
         'evidence',
         'evidence-areas',
@@ -192,6 +217,16 @@ class _EvidenceMapState extends State<EvidenceMap> {
         enableInteraction: false,
       );
       await controller.addLineLayer(
+        'analysis-matches',
+        'analysis-matches',
+        const LineLayerProperties(
+          lineColor: ['get', 'color'],
+          lineWidth: 9,
+          lineOpacity: 0.85,
+        ),
+        enableInteraction: false,
+      );
+      await controller.addLineLayer(
         'gps-route',
         'gps-halo',
         const LineLayerProperties(lineColor: '#FFFFFF', lineWidth: 7),
@@ -211,6 +246,43 @@ class _EvidenceMapState extends State<EvidenceMap> {
           circleRadius: 3.5,
           circleStrokeColor: '#1A237E',
           circleStrokeWidth: 1.5,
+        ),
+        enableInteraction: false,
+      );
+      await controller.addLineLayer(
+        'analysis-unknown',
+        'analysis-unknown-edges',
+        const LineLayerProperties(
+          lineColor: '#C62828',
+          lineWidth: 3,
+          lineOffset: 5,
+          lineDasharray: [2, 2],
+        ),
+        filter: ['==', r'$type', 'LineString'],
+        enableInteraction: false,
+      );
+      await controller.addCircleLayer(
+        'analysis-unknown',
+        'analysis-unknown-samples',
+        const CircleLayerProperties(
+          circleColor: '#C62828',
+          circleOpacity: 0,
+          circleRadius: 6,
+          circleStrokeColor: '#C62828',
+          circleStrokeWidth: 2,
+        ),
+        filter: ['==', r'$type', 'Point'],
+        enableInteraction: false,
+      );
+      await controller.addCircleLayer(
+        'analysis-focus',
+        'analysis-focus',
+        const CircleLayerProperties(
+          circleColor: '#AD1457',
+          circleOpacity: 0,
+          circleRadius: 10,
+          circleStrokeColor: '#AD1457',
+          circleStrokeWidth: 3,
         ),
         enableInteraction: false,
       );
@@ -243,6 +315,22 @@ class _EvidenceMapState extends State<EvidenceMap> {
             widget.showAccuracy
                 ? EvidenceGeoJson.accuracy(widget.points)
                 : EvidenceGeoJson.collection([]),
+          );
+          if (!mounted) return;
+          final analysis = widget.showAnalysis ? widget.analysis : null;
+          await controller.setGeoJsonSource(
+            'analysis-matches',
+            AnalysisGeoJson.matches(analysis, widget.selectedSequence),
+          );
+          if (!mounted) return;
+          await controller.setGeoJsonSource(
+            'analysis-unknown',
+            AnalysisGeoJson.unknown(analysis),
+          );
+          if (!mounted) return;
+          await controller.setGeoJsonSource(
+            'analysis-focus',
+            AnalysisGeoJson.focus(analysis, widget.selectedSequence),
           );
         })
         .catchError((Object _) {
@@ -296,6 +384,9 @@ class _EvidenceMapState extends State<EvidenceMap> {
         if (decoded is! Map || decoded['properties'] is! Map) continue;
         final properties = decoded['properties'] as Map;
         if (properties['evidenceKey'] case final String key) keys.add(key);
+        if (properties['fromSequence'] case final num sequence) {
+          sequences.add(sequence.toInt());
+        }
         if (properties['sequence'] case final num sequence) {
           sequences.add(sequence.toInt());
         }
