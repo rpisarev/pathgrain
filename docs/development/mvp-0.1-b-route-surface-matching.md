@@ -178,6 +178,43 @@ when their distance difference is ≤max(accuracy, 6 m) and their direction
 differences differ by ≤20°, or either direction is unavailable. This veto also
 applies when their surfaces agree; shared labels do not prove object identity.
 
+Field testing exposed a narrow failure of this veto: after GPS stabilization,
+a close, aligned dedicated footway could outscore a parallel residential road,
+yet both remained inside the accuracy envelope. The veto suppressed independent
+footway anchors, leaving the later context pass without enough support.
+A synthetic meter-grid regression reproduces this without using field locations.
+
+The field retest showed that requiring the strong-confidence margin (20) for
+this exception was too strict: a closer, aligned footway could satisfy the
+ordinary required margin and still remain UNKNOWN. That extra requirement
+overrode the ordinary selection gate. The exception now reuses the ordinary
+score and margin settings; the strong margin remains a confidence-label
+requirement. A synthetic regression covers this distinction without field
+coordinates or OSM IDs.
+
+The veto has one exception, centralized in `_footwayOutweighsRoad`:
+
+- The leading eligible candidate must be a **line `highway=footway`**; the rival
+  must be an eligible line from the existing road allowlist (residential,
+  service, unclassified, track, tertiary, secondary or primary).
+- Both candidates must have usable direction evidence. The footway must align
+  within **20°** of the GPS heading and be closer by more than the existing
+  numerical distance tolerance (**10⁻⁶ m**).
+- Without continuity scores, the footway must meet the ordinary minimum score
+  and required score margin over that road (`minimumScore` and `minimumMargin`).
+  These are the same settings used for ordinary candidate selection. The normal
+  minimum margin still applies across all eligible candidates.
+
+Only that road's parallel-geometry veto is waived. Every other rival is still
+checked, including a pedestrian candidate ranked behind the road. This does
+not mean "always prefer footway": class alone, proximity alone, missing/weak
+heading or an insufficient independent ordinary margin cannot trigger the
+exception. Footway versus footway, path or pedestrian retains the original
+ambiguity veto, even with a strong score lead. Areas, access restrictions,
+unsupported-geometry rivals and GPS confidence retain their existing gates.
+The exception uses no surface tags and creates no additional inference:
+a matched footway without `surface=*` still has an UNKNOWN surface.
+
 The second pass considers only the immediate previous/next **independent**
 winners across stable edges. This is a frozen first-pass array, not earlier
 results from the second pass. It never propagates a context-derived winner or
@@ -186,11 +223,12 @@ of other assignments; nearby headings still share GPS observations, subject to
 the chord-consistency guard above. Determinism assumes the original stored
 sequence: GPS warm-up and recovery intentionally follow chronological order.
 Evidence-list order and OSM node orientation do not choose the winner.
-Both independent neighbors must select the same object to resolve the
-parallel-candidate veto. Different independent winners on opposite sides
-produce UNKNOWN. Context cannot bypass the distance, geometry, GPS, direction
-or minimum-margin gates. One neighbor can strengthen a nonambiguous weak
-candidate, but cannot resolve a parallel tie.
+Outside the footway/road exception, both independent neighbors must select
+the same object to resolve the parallel-candidate veto. Context scores cannot
+supply the exception's independent score or margin. Different independent
+winners on opposite sides produce UNKNOWN. Context cannot bypass the distance,
+geometry, GPS, direction or minimum-margin gates. One neighbor can strengthen
+a nonambiguous weak candidate, but cannot resolve a parallel tie.
 
 Match confidence is **none**, **supported**, or **strong**. Strong requires an
 independent winner, accuracy ≤10 m, independent score margin ≥20, and usable
@@ -321,7 +359,12 @@ the rules. Real fast walking, sharp turns and turnbacks can be conservatively
 flagged. Sparse samples, pauses, short walks, weak headings, close parallel
 paths and intersections can yield extensive UNKNOWN results. Context uses OSM
 identity rather than network topology, so split ways and legitimate transitions
-are often unresolved.
+are often unresolved. The footway/road exception is deliberately limited to
+footway lines satisfying ordinary score and margin requirements plus the class,
+proximity and heading constraints. Other walking classes, uncertain headings and
+unresolved pedestrian peers remain conservative. A biased track or incorrect
+OSM classification can still favor the wrong object; the field case needs
+another on-device check after this adjustment, without exporting location data.
 
 OSM can be stale, incomplete, wrongly tagged or offset. Nearby bridges, tunnels
 and stacked features are not resolved using vertical topology. Relation

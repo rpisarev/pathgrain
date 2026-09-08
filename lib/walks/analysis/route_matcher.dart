@@ -12,6 +12,16 @@ import 'surface_rules.dart';
 /// Pure, synchronous, local experiment over already loaded evidence.
 /// Has no database, provider, clock, logger, or serialization dependency.
 abstract final class RouteMatcher {
+  static const _roadHighways = {
+    'residential',
+    'service',
+    'unclassified',
+    'track',
+    'tertiary',
+    'secondary',
+    'primary',
+  };
+
   static RouteAnalysis analyze(
     List<WalkPoint> points,
     List<OsmFeature> features, {
@@ -286,15 +296,7 @@ abstract final class RouteMatcher {
         reason: AnalysisReason.eligible,
       );
     }
-    if (const {
-      'residential',
-      'service',
-      'unclassified',
-      'track',
-      'tertiary',
-      'secondary',
-      'primary',
-    }.contains(highway)) {
+    if (_roadHighways.contains(highway)) {
       if (tags.entries.any(
         (e) =>
             (e.key == 'sidewalk' || e.key.startsWith('sidewalk:')) &&
@@ -322,6 +324,29 @@ abstract final class RouteMatcher {
     return eligible.length < 2
         ? double.infinity
         : eligible[0].score - eligible[1].score;
+  }
+
+  static bool _footwayOutweighsRoad(
+    MatchCandidate first,
+    MatchCandidate other,
+  ) {
+    // Class alone cannot break a parallel tie. Require a closer, aligned
+    // footway meeting the ordinary score and margin gates without context.
+    final independentScore = first.score - first.continuityScore;
+    final otherIndependentScore = other.score - other.continuityScore;
+    return !first.feature.isArea &&
+        first.feature.tags['highway'] == 'footway' &&
+        !other.feature.isArea &&
+        _roadHighways.contains(other.feature.tags['highway']) &&
+        first.directionDegrees != null &&
+        other.directionDegrees != null &&
+        first.directionDegrees! <= AnalysisSettings.parallelDirectionDegrees &&
+        first.distanceMeters +
+                AnalysisSettings.geometryDistanceToleranceMeters <
+            other.distanceMeters &&
+        independentScore >= AnalysisSettings.minimumScore &&
+        independentScore - otherIndependentScore >=
+            AnalysisSettings.minimumMargin;
   }
 
   static ({MatchCandidate? candidate, AnalysisReason reason}) _choose(
@@ -361,7 +386,8 @@ abstract final class RouteMatcher {
               (first.directionDegrees == null ||
                   other.directionDegrees == null ||
                   (first.directionDegrees! - other.directionDegrees!).abs() <=
-                      AnalysisSettings.parallelDirectionDegrees),
+                      AnalysisSettings.parallelDirectionDegrees) &&
+              !_footwayOutweighsRoad(first, other),
         );
     if (_margin(candidates) < AnalysisSettings.minimumMargin ||
         (ambiguous && supportedKey != first.feature.key)) {
