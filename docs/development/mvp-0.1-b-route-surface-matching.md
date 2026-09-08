@@ -1,8 +1,9 @@
 # MVP 0.1-B — Route and surface matching experiment
 
-Status: implemented for development inspection and synthetic verification.
-Physical-device verification of **0.1-B** is outstanding. The complete MVP 0.1
-Record → Analyze surfaces → Review → Correct → Save loop remains unfinished.
+Status: completed as a development experiment, with automated verification
+and focused physical Pixel testing of saved-walk analysis. This is not a
+production-readiness claim. The complete MVP 0.1 Record → Analyze surfaces →
+Review → Correct → Save loop remains unfinished.
 
 ## Scope and architecture
 
@@ -330,7 +331,7 @@ Neither ordered points nor timestamps enter requests. Derived scores and
 GeoJSON remain local, with no logging, telemetry, export, database writes or
 new cache fields. No real field coordinates are in source, tests or this note.
 
-## How the Pixel walk informed the design
+## Physical Pixel testing and design evidence
 
 The user reported a physical Pixel walk on **2026-09-07** with duration **10:28**,
 **130** stored samples and saved distance **1105.2 m**. Accuracy was median
@@ -348,9 +349,17 @@ UNKNOWN edges. They do not establish final thresholds. Synthetic fixtures use
 a fabricated meter grid near (1°, 2°), including similar accuracy/time/geometric
 patterns; they do not reconstruct the field route.
 
-The supplied aggregates do not establish native 0.1-B rendering, matching
-correctness, Home/screen-lock behavior, or 0.1-A cache/map interaction results.
-No physical device test was performed during this implementation.
+The initial aggregates alone did not establish native diagnostic behavior.
+Subsequent user-reported physical Pixel testing exercised the 0.1-B development
+view with real recorded walks, including GPS deviations and parallel
+footway/road cases. These investigations informed the regression cases and
+parallel-road fixes described above.
+
+This is focused development validation, not exhaustive field validation. It
+does not establish a complete native-map/cache test matrix or broader device
+coverage. The recorder's separate
+[Home/screen-lock verification boundary](android-walk-recording.md#permissions-and-android-behavior)
+still applies.
 
 ## Known failure modes and deferred work
 
@@ -363,8 +372,8 @@ are often unresolved. The footway/road exception is deliberately limited to
 footway lines satisfying ordinary score and margin requirements plus the class,
 proximity and heading constraints. Other walking classes, uncertain headings and
 unresolved pedestrian peers remain conservative. A biased track or incorrect
-OSM classification can still favor the wrong object; the field case needs
-another on-device check after this adjustment, without exporting location data.
+OSM classification can still favor the wrong object; focused Pixel testing
+does not rule out these failure modes.
 
 OSM can be stale, incomplete, wrongly tagged or offset. Nearby bridges, tunnels
 and stacked features are not resolved using vertical topology. Relation
@@ -377,12 +386,16 @@ The analyzer runs synchronously for small development walks; dense evidence
 and large walks need physical responsiveness checks. No spatial index,
 map-matching framework or production-scale performance claim is included.
 
-Deferred: final segmentation UI, surface distance breakdown/reconciliation,
-derived-segment persistence/migrations, user corrections and persistence,
-automatic post-Stop analysis, robust graph matching, production provider/map
-infrastructure, backend, accounts, cloud and community features.
+Deferred: final surface-segment generation and user-facing review, surface
+distance breakdown/reconciliation, derived-segment persistence/migrations,
+user corrections and persistence, automatic post-Stop analysis, robust graph
+matching, production provider/map infrastructure, backend, accounts, cloud and
+community features.
 
-## Concrete next physical-device procedure
+## Repeatable physical-device procedure
+
+This checklist supports further field regression testing; the focused
+observations above do not establish that every scenario below has passed.
 
 1. Install the debug APK over the existing app without uninstalling or clearing
    data. Open a previously saved walk and note its duration, distance and point
@@ -431,31 +444,46 @@ ordering, missing/ambiguous/conflicting surfaces, explicit aliases, narrow area
 inference, incomplete geometry, bend-cutting edges, local overlays, both
 locales and inspector interactions without additional provider calls.
 
+Parallel-road regressions include a closer, eligible footway whose independent
+lead is greater than `AnalysisSettings.minimumMargin` but smaller than
+`strongMargin`: it matches with supported confidence. `strongMargin` is a
+confidence threshold, not another acceptance gate. Pedestrian peers, weak GPS
+or heading, and insufficient independent margins remain conservative; matched
+footways without surface evidence still have UNKNOWN / missingSurface results.
+
 The full 0.1-A cache/provider/privacy and Prototype 0.0 recorder/database suite
 must also pass. Widget tests substitute for the native map and contact neither
 Overpass nor basemap services. They do not verify native rendering or physical
 background recording.
 
-Verified on **2026-09-07**:
+Initial verification on **2026-09-07** included localization generation and
+**74 passing tests**. Subsequent review and parallel-road regressions expanded
+the suite.
 
-- Localization generation succeeded and changed Dart files were formatted.
+Verification of the completed 0.1-B code (`1651305`, **2026-09-08**):
+
+- Changed Dart files were formatted during implementation verification.
 - `flutter analyze`: **no issues found**.
-- `flutter test`: **74 tests passed**, including the unchanged evidence
-  cache/provider/privacy and recorder/database regression tests.
+- `flutter test`: **92 tests passed**, including the matching review and
+  parallel-road regressions, evidence cache/provider/privacy checks and unchanged
+  recorder/database tests. The full suite was rerun for this documentation cleanup.
 - `flutter build apk --debug`: **succeeded**.
 - APK: `build/app/outputs/flutter-apk/app-debug.apk`.
 - `git diff --check`: clean.
 
 The Android build emitted the existing Gradle Java native-access warning and
 the `maplibre_gl` Kotlin Gradle Plugin / future Built-in Kotlin migration
-warning. Neither prevented the debug build. No live Overpass query or physical
-device verification was performed during this implementation.
+warning. Neither prevented the debug build. These automated checks did not
+exercise a physical device or live Overpass query; the focused physical matching
+investigations are recorded separately above.
 
-Changed files: six pure-Dart files in `lib/walks/analysis/`; the existing
-`evidence_debug_screen.dart`, `evidence_inspector.dart` and `evidence_map.dart`;
+0.1-B implementation and regression files: six pure-Dart files in
+`lib/walks/analysis/`; the existing `evidence_debug_screen.dart`,
+`evidence_inspector.dart` and `evidence_map.dart`;
 new `analysis_details.dart` and `analysis_geojson.dart` beside them; English and
 Ukrainian ARBs plus their three generated localization files;
-`test/route_matcher_test.dart`, `test/route_geometry_test.dart`,
+`test/route_matcher_test.dart`, `test/route_matcher_review_test.dart`,
+`test/route_matcher_parallel_road_test.dart`, `test/route_geometry_test.dart`,
 `test/surface_rules_test.dart`, `test/analysis_diagnostics_test.dart` and
 `test/support/analysis_fixtures.dart`; this note and the narrowly updated
 0.1-A status note.

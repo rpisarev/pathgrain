@@ -1,10 +1,10 @@
 # MVP 0.1-A — OSM map evidence
 
-Status: implemented for development inspection. User-reported Pixel GPS
-observations from 2026-09-07 inform the subsequent
-[0.1-B matching experiment](mvp-0.1-b-route-surface-matching.md); native diagnostic
-map/cache and Home/screen-lock verification are still outstanding. This is not
-completion of the full MVP 0.1.
+Status: implemented for development inspection. Focused physical Pixel testing
+of saved-walk analysis is recorded in the subsequent
+[0.1-B matching experiment](mvp-0.1-b-route-surface-matching.md). That investigation
+does not establish comprehensive native-map/cache or Home/screen-lock
+verification. The full MVP 0.1 loop remains unfinished.
 
 This development slice makes OSM evidence observable around an already saved
 walk. On its own, 0.1-A does not match a walk to an OSM object or assign a surface;
@@ -190,10 +190,11 @@ MapLibre basemap attribution remains enabled.
 If map initialization fails or takes over 20 seconds, **Use plain map** creates
 a local background style without basemap network access and adds the same local
 layers. This is a diagnostic fallback, not an offline tile system. The inspector
-remains available even if the native map fails. Native drawing, tapping, map
-styles, and Android performance still require a physical-device field test.
+remains available even if the native map fails. Broader native drawing,
+tapping, style and Android performance coverage is not established by the
+focused 0.1-B matching field work.
 
-## First Android field test
+## Android field-test procedure
 
 1. Run/install a debug build (`flutter run --debug` or the debug APK). Record a
    normal walk through a mix of sidewalk, path, road crossing, and square/park.
@@ -233,17 +234,19 @@ Run `dart format` on changed Dart files, `flutter analyze`, `flutter test`, and
 `flutter build apk --debug`. Report command outcomes and physical observations
 separately. The existing recorder/database tests must continue to pass.
 
-Verified on 2026-09-07: localization generation succeeded; changed Dart files
-were formatted (including a clean generated-localization format check);
-`flutter analyze` reported no issues; all **44** tests passed, including the
-existing recorder/database tests; and `flutter build apk --debug` succeeded.
+Initial 0.1-A verification on 2026-09-07: localization generation succeeded;
+changed Dart files were formatted (including a clean generated-localization
+format check); `flutter analyze` reported no issues; all **44** tests passed,
+including the existing recorder/database tests; and `flutter build apk --debug`
+succeeded.
 The APK is at `build/app/outputs/flutter-apk/app-debug.apk`. The Android build
 reported Gradle's Java native-access warning and a warning that `maplibre_gl`
 still applies Kotlin Gradle Plugin and needs future Built-in Kotlin migration.
 No physical device test or live Overpass query was performed during that
-implementation verification. Subsequent user-reported Pixel GPS aggregates are
-recorded in the 0.1-B note; they do not establish the native diagnostic behaviors
-listed in the field procedure above.
+implementation verification. Subsequent physical Pixel testing used saved walks
+in the 0.1-B view to investigate GPS deviations and parallel footway/road matching.
+Those focused observations are recorded in the 0.1-B note; they do not establish
+that every native-map/cache scenario in the procedure above has passed.
 
 The subsequent [0.1-B experiment](mvp-0.1-b-route-surface-matching.md) adds local
 candidate/direction/continuity scoring, GPS confidence, DIRECT/INFERRED/UNKNOWN

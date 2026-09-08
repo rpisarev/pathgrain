@@ -146,8 +146,12 @@ the Android target:
 
 ## Unresolved technical decisions
 
-The following must be resolved during implementation planning. This document
-deliberately does not select them:
+Development choices for source/cache access, provisional matching and
+confidence rules, and surface taxonomy are already implemented in
+[0.1-A](../development/mvp-0.1-a-osm-map-evidence.md) and
+[0.1-B](../development/mvp-0.1-b-route-surface-matching.md). The following concern
+remaining integration and final decisions for the complete journal workflow;
+this product specification deliberately does not select them:
 
 - which geographic/OpenStreetMap source and provider to use, including terms,
   attribution, availability, and rate limits;
