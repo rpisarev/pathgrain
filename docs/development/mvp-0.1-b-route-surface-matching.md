@@ -193,7 +193,7 @@ score and margin settings; the strong margin remains a confidence-label
 requirement. A synthetic regression covers this distinction without field
 coordinates or OSM IDs.
 
-The veto has one exception, centralized in `_footwayOutweighsRoad`:
+The parallel-geometry veto has one exception, centralized in `_footwayOutweighsRoad`:
 
 - The leading eligible candidate must be a **line `highway=footway`**; the rival
   must be an eligible line from the existing road allowlist (residential,
@@ -215,6 +215,25 @@ ambiguity veto, even with a strong score lead. Areas, access restrictions,
 unsupported-geometry rivals and GPS confidence retain their existing gates.
 The exception uses no surface tags and creates no additional inference:
 a matched footway without `surface=*` still has an UNKNOWN surface.
+
+A frozen-cache investigation also exposed a redundant crossing-node veto.
+A plain crossing node may cease vetoing a supported footway/path only with
+exact integer node membership and matching ordered coordinates. The leader
+must pass independent score, margin and geometry gates. Other pedestrian
+ways are harmless here only when already rejected as `tooFar` or
+`directionConflict`; eligible rivals, including low-scoring ones, still block.
+All loaded parent ways are checked, including unrenderable parents. Other
+pedestrian or unresolved parents block; a shared road parent must already be
+rejected by heading. Additional node surface/entrance/level semantics retain
+the veto. Thresholds, GPS rules, context and surface assignment are unchanged.
+
+Synthetic crossing-node regressions cover these guards and missing-surface
+preservation. Offline frozen Pixel verification changed only six original
+edges in two runs: **42.892 m** left ambiguity, of which **21.005 m** became
+explicit paving stones and **21.887 m** remained UNKNOWN as missing surface.
+All previously classified edges and the protected branch, steps, underpass
+and multi-path examples stayed unchanged. This is frozen-data verification,
+not new physical-device acceptance.
 
 The second pass considers only the immediate previous/next **independent**
 winners across stable edges. This is a frozen first-pass array, not earlier

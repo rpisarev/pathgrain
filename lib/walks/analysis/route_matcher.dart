@@ -28,6 +28,22 @@ abstract final class RouteMatcher {
     bool evidenceComplete = true,
   }) {
     final gps = GpsConfidence.assess(points);
+    // Retained OSM IDs establish membership, including parents whose geometry
+    // cannot produce a nearby candidate. This is not route reconstruction.
+    final crossingWays = <int, Set<String>>{
+      for (final feature in features)
+        if (feature.type == OsmElementType.node &&
+            feature.tags['highway'] == 'crossing')
+          feature.id: <String>{},
+    };
+    for (final feature in features) {
+      final nodes = feature.raw['nodes'];
+      if (feature.type == OsmElementType.way && nodes is List) {
+        for (final id in nodes.whereType<int>()) {
+          crossingWays[id]?.add(feature.key);
+        }
+      }
+    }
     final candidates = <List<MatchCandidate>>[];
     for (var i = 0; i < points.length; i++) {
       final heading = _heading(points, gps.edges, i);
@@ -46,7 +62,11 @@ abstract final class RouteMatcher {
     final anchors = [
       for (var i = 0; i < points.length; i++)
         gps.samples[i].isStable && evidenceComplete
-            ? _choose(candidates[i], points[i]).candidate?.feature.key
+            ? _choose(
+                candidates[i],
+                points[i],
+                crossingWays,
+              ).candidate?.feature.key
             : null,
     ];
     final samples = <SampleAnalysis>[];
@@ -77,6 +97,7 @@ abstract final class RouteMatcher {
       final choice = _choose(
         scored,
         points[i],
+        crossingWays,
         supportedKey: previous != null && previous == next ? previous : null,
       );
       var reason = choice.reason;
@@ -349,9 +370,81 @@ abstract final class RouteMatcher {
             AnalysisSettings.minimumMargin;
   }
 
+  static bool _redundantCrossingNode(
+    MatchCandidate node,
+    MatchCandidate first,
+    List<MatchCandidate> candidates,
+    Map<int, Set<String>> crossingWays,
+  ) {
+    final feature = node.feature;
+    final way = first.feature;
+    if (node.reason != AnalysisReason.unsupportedGeometry ||
+        feature.type != OsmElementType.node ||
+        feature.geometryKind != OsmGeometryKind.point ||
+        feature.tags['highway'] != 'crossing' ||
+        feature.tags.keys.any(
+          (key) =>
+              !const {'highway', 'crossing', 'crossing:markings'}.contains(key),
+        ) ||
+        way.type != OsmElementType.way ||
+        way.geometryKind != OsmGeometryKind.line ||
+        way.isArea ||
+        !const {'footway', 'path'}.contains(way.tags['highway'])) {
+      return false;
+    }
+    final nodes = way.raw['nodes'];
+    if (nodes is! List ||
+        nodes.any((id) => id is! int) ||
+        way.parts.length != 1 ||
+        nodes.length != way.parts.single.length ||
+        feature.parts.length != 1 ||
+        feature.parts.single.length != 1) {
+      return false;
+    }
+    final index = nodes.indexOf(feature.id);
+    if (index < 0 || way.parts.single[index] != feature.parts.single.single) {
+      return false;
+    }
+    // Context must not manufacture the independent score or margin needed to
+    // waive this veto. Only distance/heading-rejected pedestrian diagnostics
+    // are harmless; eligible rivals keep the veto even below minimum score.
+    final independentScore = first.score - first.continuityScore;
+    if (independentScore < AnalysisSettings.minimumScore ||
+        candidates.any(
+          (c) =>
+              c.feature.key != way.key &&
+              ((c.feature.type == OsmElementType.way &&
+                      c.pedestrianScore == AnalysisSettings.pedestrianWeight &&
+                      c.reason != AnalysisReason.tooFar &&
+                      c.reason != AnalysisReason.directionConflict) ||
+                  (c.eligible &&
+                      independentScore - (c.score - c.continuityScore) <
+                          AnalysisSettings.minimumMargin)),
+        )) {
+      return false;
+    }
+    final parents = crossingWays[feature.id];
+    // A road crossing is redundant only when that parent is already rejected
+    // by heading. Pedestrian branches, eligible roads and absent/unsupported
+    // parent geometry keep the veto, regardless of shared surface labels.
+    return parents != null &&
+        parents.contains(way.key) &&
+        parents.every(
+          (key) =>
+              key == way.key ||
+              candidates.any(
+                (c) =>
+                    c.feature.key == key &&
+                    _roadHighways.contains(c.feature.tags['highway']) &&
+                    c.reason == AnalysisReason.directionConflict,
+              ),
+        );
+  }
+
   static ({MatchCandidate? candidate, AnalysisReason reason}) _choose(
     List<MatchCandidate> candidates,
-    WalkPoint p, {
+    WalkPoint p,
+    Map<int, Set<String>> crossingWays, {
     String? supportedKey,
   }) {
     final eligible = candidates.where((c) => c.eligible).toList();
@@ -366,17 +459,6 @@ abstract final class RouteMatcher {
       p.accuracyMeters.isFinite ? p.accuracyMeters : 0.0,
       AnalysisSettings.minimumAmbiguityMeters,
     );
-    // Unsupported pedestrian geometry and area edges in the accuracy envelope
-    // are unresolved rivals, even though they cannot win a match themselves.
-    if (candidates.any(
-      (c) =>
-          (c.reason == AnalysisReason.areaBoundary ||
-              (c.reason == AnalysisReason.unsupportedGeometry &&
-                  c.pedestrianScore > 0)) &&
-          c.distanceMeters <= uncertainty,
-    )) {
-      return (candidate: null, reason: AnalysisReason.ambiguousCandidates);
-    }
     final ambiguous = eligible
         .skip(1)
         .any(
@@ -389,6 +471,20 @@ abstract final class RouteMatcher {
                       AnalysisSettings.parallelDirectionDegrees) &&
               !_footwayOutweighsRoad(first, other),
         );
+    // Unsupported pedestrian geometry and area edges in the accuracy envelope
+    // are unresolved rivals, even though they cannot win a match themselves.
+    if (candidates.any(
+      (c) =>
+          (c.reason == AnalysisReason.areaBoundary ||
+              (c.reason == AnalysisReason.unsupportedGeometry &&
+                  c.pedestrianScore > 0)) &&
+          c.distanceMeters <= uncertainty &&
+          // Waiving the node must not rely on context to resolve geometry.
+          (ambiguous ||
+              !_redundantCrossingNode(c, first, candidates, crossingWays)),
+    )) {
+      return (candidate: null, reason: AnalysisReason.ambiguousCandidates);
+    }
     if (_margin(candidates) < AnalysisSettings.minimumMargin ||
         (ambiguous && supportedKey != first.feature.key)) {
       return (candidate: null, reason: AnalysisReason.ambiguousCandidates);
