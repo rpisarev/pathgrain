@@ -8,6 +8,9 @@ import '../map/evidence/evidence_repository.dart';
 import '../map/evidence/geographic_cell.dart';
 import '../map/evidence/overpass_evidence_provider.dart';
 import 'analysis/route_matcher.dart';
+import 'analysis/surface_journal.dart';
+import 'surface_correction_dialog.dart';
+import 'walk_surface_repository.dart';
 import 'analysis/walk_surface_summary.dart';
 import 'surface_route_geojson.dart';
 import 'walk_formatters.dart';
@@ -19,11 +22,13 @@ class WalkSurfaceReviewScreen extends StatefulWidget {
     super.key,
     required this.walk,
     required this.loadPoints,
+    required this.surfaceRepository,
     this.evidenceRepository,
     this.mapBuilder,
   });
 
   final Walk walk;
+  final WalkSurfaceRepository surfaceRepository;
   final Future<List<WalkPoint>> Function() loadPoints;
   final EvidenceRepository? evidenceRepository;
   final Widget Function(WalkSurfaceMap map)? mapBuilder;
@@ -38,7 +43,13 @@ class _WalkSurfaceReviewScreenState extends State<WalkSurfaceReviewScreen> {
   EvidenceRepository? _repository;
   SqliteEvidenceCache? _ownedCache;
   EvidenceSnapshot? _snapshot;
-  WalkSurfaceSummary? _summary;
+  SurfaceJournal? _journal;
+  EffectiveSurfaceSummary? _preview;
+  bool _journalInvalid = false;
+  bool _localLoadFailed = false;
+  bool _saveFailed = false;
+  bool _incomplete = false;
+  EffectiveSurfaceSummary? get _summary => _journal?.effective ?? _preview;
   Future<void>? _loading;
   bool _busy = true;
   bool _failed = false;
@@ -62,6 +73,30 @@ class _WalkSurfaceReviewScreenState extends State<WalkSurfaceReviewScreen> {
         throw const FormatException('Invalid saved route');
       }
       setState(() => _points = List.unmodifiable(points));
+      if (points.length >= 2) {
+        try {
+          final journal = await widget.surfaceRepository.load(
+            widget.walk.id,
+            points,
+          );
+          if (mounted) {
+            setState(() {
+              _journal = journal;
+              _journalInvalid = false;
+              _localLoadFailed = false;
+            });
+          }
+        } on FormatException {
+          if (mounted) {
+            setState(() {
+              _journalInvalid = true;
+              _localLoadFailed = false;
+            });
+          }
+        } catch (_) {
+          if (mounted) setState(() => _localLoadFailed = true);
+        }
+      }
     } catch (_) {
       if (mounted) setState(() => _failed = true);
     } finally {
@@ -73,8 +108,8 @@ class _WalkSurfaceReviewScreenState extends State<WalkSurfaceReviewScreen> {
     setState(() {
       _busy = true;
       _failed = false;
-      _summary = null;
-      _snapshot = null;
+      _saveFailed = false;
+      _incomplete = false;
     });
     try {
       _repository ??= widget.evidenceRepository;
@@ -87,25 +122,55 @@ class _WalkSurfaceReviewScreenState extends State<WalkSurfaceReviewScreen> {
         );
       }
       if (!mounted) return;
+      EvidenceSnapshot? terminal;
       await for (final snapshot in _repository!.inspect(
         _points!.map((p) => GeoCoordinate(p.latitude, p.longitude)),
       )) {
         if (!mounted) break;
-        if (!snapshot.isLoading) {
-          final summary = WalkSurfaceSummary.fromAnalysis(
-            RouteMatcher.analyze(
-              _points!,
-              snapshot.features,
-              evidenceComplete: snapshot.hasCompleteCoverage,
-            ),
-          );
+        if (!snapshot.isLoading) terminal = snapshot;
+      }
+      if (!mounted) return;
+      if (terminal == null) throw const FormatException('No complete analysis');
+      final summary = WalkSurfaceSummary.fromAnalysis(
+        RouteMatcher.analyze(
+          _points!,
+          terminal.features,
+          evidenceComplete: terminal.hasCompleteCoverage,
+        ),
+      );
+      _snapshot = terminal;
+      if (!terminal.hasCompleteCoverage ||
+          terminal.failedCells > 0 ||
+          terminal.failure != null) {
+        setState(() {
+          _incomplete = true;
+          // C's honest UNKNOWN preview remains available only before a saved
+          // snapshot exists. It is explicitly unsaved and cannot be corrected.
+          if (_journal == null) {
+            _preview = SurfaceJournal(
+              AutomaticSurfaceSnapshot.fromSummary(summary),
+              const [],
+            ).effective;
+          }
+        });
+        return;
+      }
+      try {
+        final journal = await widget.surfaceRepository.saveAnalysis(
+          widget.walk.id,
+          summary,
+          evidenceComplete: true,
+        );
+        if (mounted) {
           setState(() {
-            _snapshot = snapshot;
-            _summary = summary;
+            _journal = journal;
+            _preview = null;
+            _journalInvalid = false;
           });
         }
+      } catch (_) {
+        if (mounted) setState(() => _saveFailed = true);
       }
-      if (mounted && _summary == null) setState(() => _failed = true);
     } catch (_) {
       if (mounted) setState(() => _failed = true);
     } finally {
@@ -167,35 +232,58 @@ class _WalkSurfaceReviewScreenState extends State<WalkSurfaceReviewScreen> {
                       const LinearProgressIndicator(),
                       const SizedBox(height: 8),
                       Text(_points == null ? l.mapLoading : l.surfaceAnalyzing),
-                    ] else if (_failed) ...[
+                    ],
+                    if (!_busy && (_failed || _localLoadFailed)) ...[
                       Text(l.surfaceReviewFailed),
                       TextButton(
-                        onPressed: () => _loading = _points == null
+                        onPressed: () =>
+                            _loading = _points == null || _localLoadFailed
                             ? _loadPoints()
                             : _analyze(),
                         child: Text(l.surfaceRetry),
                       ),
-                    ] else if (_points!.length < 2)
-                      Text(l.routeUnavailable)
-                    else if (summary == null) ...[
-                      Text(l.surfaceAccessNotice),
-                      const SizedBox(height: 12),
-                      FilledButton(
-                        onPressed: () => _loading = _analyze(),
-                        child: Text(l.surfaceAnalyze),
+                    ],
+                    if (_journalInvalid) Text(l.surfaceJournalInvalid),
+                    if (_saveFailed) ...[
+                      Text(l.surfaceAnalysisSaveFailed),
+                      TextButton(
+                        onPressed: _busy ? null : () => _loading = _analyze(),
+                        child: Text(l.surfaceRetry),
                       ),
                     ],
-                    if (summary != null) ...[
-                      Text(l.surfaceReviewNotice),
-                      if (!_snapshot!.hasCompleteCoverage) ...[
-                        const SizedBox(height: 8),
-                        Text(l.surfaceEvidenceIncomplete),
-                        TextButton(
-                          onPressed: _busy ? null : () => _loading = _analyze(),
-                          child: Text(l.surfaceRetry),
+                    if (_incomplete) ...[
+                      Text(l.surfaceEvidenceIncomplete),
+                      Text(
+                        _journal == null
+                            ? l.surfacePreviewUnsaved
+                            : l.surfacePreviousKept,
+                      ),
+                      TextButton(
+                        onPressed: _busy ? null : () => _loading = _analyze(),
+                        child: Text(l.surfaceRetry),
+                      ),
+                    ],
+                    if (!_busy &&
+                        !_failed &&
+                        !_localLoadFailed &&
+                        _points != null)
+                      if (_points!.length < 2)
+                        Text(l.routeUnavailable)
+                      else if (!_incomplete && !_saveFailed) ...[
+                        Text(l.surfaceAccessNotice),
+                        const SizedBox(height: 12),
+                        FilledButton(
+                          onPressed: () => _loading = _analyze(),
+                          child: Text(
+                            _journal == null
+                                ? l.surfaceAnalyze
+                                : l.surfaceReanalyze,
+                          ),
                         ),
                       ],
-                      if (_snapshot!.cacheFailures > 0)
+                    if (summary != null) ...[
+                      Text(l.surfaceReviewNotice),
+                      if (_snapshot != null && _snapshot!.cacheFailures > 0)
                         Text(l.surfaceCacheUnavailable),
                       const SizedBox(height: 16),
                       Text(
@@ -253,6 +341,7 @@ class _WalkSurfaceReviewScreenState extends State<WalkSurfaceReviewScreen> {
                   height: MediaQuery.sizeOf(context).height * 0.55,
                   child: _buildMap(summary),
                 ),
+              if (_journal != null) _buildSegments(_journal!.effective),
               if (summary != null)
                 Padding(
                   padding: const EdgeInsets.all(16),
@@ -268,8 +357,79 @@ class _WalkSurfaceReviewScreenState extends State<WalkSurfaceReviewScreen> {
     );
   }
 
-  Widget _buildMap(WalkSurfaceSummary summary) {
-    final map = WalkSurfaceMap(key: ObjectKey(summary), summary: summary);
+  Widget _buildSegments(EffectiveSurfaceSummary summary) {
+    final l = AppLocalizations.of(context);
+    var distance = 0.0;
+    final rows = <Widget>[];
+    for (var i = 0; i < summary.segments.length; i++) {
+      final segment = summary.segments[i];
+      final start = distance;
+      distance += segment.distanceMeters;
+      rows.add(
+        ListTile(
+          key: ValueKey(
+            'segment-${segment.startEdgeIndex}-${segment.endEdgeIndex}',
+          ),
+          title: Text(
+            '${l.surfaceSegment(i + 1)} · ${formatDistance(l, segment.distanceMeters)}',
+          ),
+          subtitle: Text(
+            '${l.analysisSurface(segment.surface.name)} · '
+            '${segment.isCorrected ? l.surfaceCorrected : l.surfaceAutomatic}\n'
+            '${l.surfaceSegmentPosition(formatDistance(l, start), formatDistance(l, distance))}',
+          ),
+          trailing: const Icon(Icons.edit_outlined),
+          onTap: _busy ? null : () => _editSegment(segment, i + 1),
+        ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l.surfaceSegments,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          Text(l.surfaceSelectSegment),
+          ...rows,
+        ],
+      ),
+    );
+  }
+
+  Future<void> _editSegment(EffectiveSurfaceSegment segment, int number) async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => SurfaceCorrectionDialog(
+        segment: segment,
+        number: number,
+        save: (surface) async {
+          final journal = surface == null
+              ? await widget.surfaceRepository.restoreAutomatic(
+                  widget.walk.id,
+                  _points!,
+                  segment.correction!,
+                )
+              : await widget.surfaceRepository.saveCorrection(
+                  widget.walk.id,
+                  _points!,
+                  SurfaceCorrection(
+                    startEdgeIndex: segment.startEdgeIndex,
+                    endEdgeIndex: segment.endEdgeIndex,
+                    surface: surface,
+                  ),
+                );
+          if (mounted) setState(() => _journal = journal);
+        },
+      ),
+    );
+  }
+
+  Widget _buildMap(EffectiveSurfaceSummary summary) {
+    final map = WalkSurfaceMap(summary: summary);
     return widget.mapBuilder?.call(map) ?? map;
   }
 }

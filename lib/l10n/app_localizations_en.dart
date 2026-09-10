@@ -536,7 +536,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get surfaceReviewNotice =>
-      'Automatic surface estimates from available map data. Unknown means there is not enough evidence to identify a surface. This review is read-only. Analysis results are recalculated and are not saved.';
+      'Surface estimates can be corrected below. Saved analysis and your corrections stay on this device. Unknown is a valid surface label.';
 
   @override
   String get surfaceReviewFailed =>
@@ -614,4 +614,63 @@ class AppLocalizationsEn extends AppLocalizations {
 
     return '$valueString%';
   }
+
+  @override
+  String get surfaceReanalyze => 'Re-analyze surfaces';
+
+  @override
+  String get surfaceJournalInvalid =>
+      'Saved surface data is invalid. Your recorded walk is intact. Re-analysis can rebuild the automatic result; corrections will not be discarded.';
+
+  @override
+  String get surfaceAnalysisSaveFailed =>
+      'Could not save the analysis locally. Any previous saved review and corrections are unchanged. Try again.';
+
+  @override
+  String get surfacePreviousKept =>
+      'The previous saved review and corrections are still shown.';
+
+  @override
+  String get surfacePreviewUnsaved =>
+      'This incomplete preview is not saved. Corrections become available after a complete analysis is saved.';
+
+  @override
+  String get surfaceSegments => 'Route segments';
+
+  @override
+  String get surfaceSelectSegment =>
+      'Segments are ordered from the start of your walk. Tap a segment to correct its surface.';
+
+  @override
+  String surfaceSegment(int number) {
+    return 'Segment $number';
+  }
+
+  @override
+  String surfaceSegmentPosition(String start, String end) {
+    return '$start–$end from the start';
+  }
+
+  @override
+  String get surfaceCorrected => 'Corrected';
+
+  @override
+  String get surfaceAutomatic => 'Automatic';
+
+  @override
+  String get surfaceChooseLabel => 'Surface';
+
+  @override
+  String get surfaceCorrectionNotice =>
+      'Your choice applies to this whole segment and remains after re-analysis. Choose Unknown if no supported label fits.';
+
+  @override
+  String get surfaceCorrectionSaveFailed =>
+      'Could not save this change. Your saved review is unchanged. Try again.';
+
+  @override
+  String get surfaceRestoreAutomatic => 'Restore automatic';
+
+  @override
+  String get surfaceSave => 'Save';
 }

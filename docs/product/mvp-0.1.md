@@ -4,7 +4,13 @@ Status: current milestone
 
 Read-only original-route segmentation, distance breakdown and saved-walk review
 are implemented in [0.1-C](../development/mvp-0.1-c-surface-segments-review.md).
-Physical acceptance, corrections and derived-result persistence remain pending.
+Focused physical Pixel review observations are recorded in that note.
+Local automatic snapshots, reversible segment corrections and explicit
+re-analysis with correction precedence are implemented in
+[0.1-D](../development/mvp-0.1-d-surface-corrections-persistence.md).
+0.1-D has been physically spot-checked on a Pixel using an existing saved walk
+after an in-place upgrade without clearing app data. Final recorder regression
+verification remains pending.
 
 ## Goal
 
@@ -164,10 +170,5 @@ this product specification deliberately does not select them:
 - the on-device route-to-geography matching and segmentation algorithm,
   confidence thresholds, and behavior for conflicting source features;
 - the initial user-visible surface taxonomy and its mapping from source tags;
-- the local schema and migration for inferred segments, provenance, and user
-  corrections;
-- the correction-selection interaction and minimum editable segment size;
-- analysis progress, failure, retry, caching, and re-analysis behavior,
-  including how a saved correction retains precedence;
 - final acceptance of the provisional 0.1-C distance-allocation and
   display-rounding rules used by the surface breakdown.

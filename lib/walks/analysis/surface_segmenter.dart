@@ -1,9 +1,38 @@
 import '../../map/evidence/geographic_cell.dart';
 import '../walk_distance.dart';
+import '../walk_models.dart';
 import 'route_analysis.dart';
 
 /// A half-open range of original route edges. Contains no derived geometry.
 class SurfaceSegment {
+  /// Reconstructs meters from recorded points, never stored meters.
+  factory SurfaceSegment.fromRange({
+    required List<WalkPoint> points,
+    required int startEdgeIndex,
+    required int endEdgeIndex,
+    required SurfaceAssessment surface,
+    required AnalysisReason reason,
+    required String? fromFeatureKey,
+    required String? toFeatureKey,
+  }) {
+    if (startEdgeIndex < 0 ||
+        endEdgeIndex <= startEdgeIndex ||
+        endEdgeIndex >= points.length) {
+      throw const FormatException('Invalid surface range');
+    }
+    return SurfaceSegment._(
+      startEdgeIndex: startEdgeIndex,
+      endEdgeIndex: endEdgeIndex,
+      surface: surface,
+      reason: reason,
+      fromFeatureKey: fromFeatureKey,
+      toFeatureKey: toFeatureKey,
+      distanceMeters: WalkDistance.total(
+        points.getRange(startEdgeIndex, endEdgeIndex + 1),
+      ),
+    );
+  }
+
   const SurfaceSegment._({
     required this.startEdgeIndex,
     required this.endEdgeIndex,

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pathgrain/walks/analysis/route_analysis.dart';
+import 'package:pathgrain/walks/analysis/surface_journal.dart';
 import 'package:pathgrain/walks/analysis/route_matcher.dart';
 import 'package:pathgrain/walks/analysis/walk_surface_summary.dart';
 import 'package:pathgrain/walks/surface_route_geojson.dart';
@@ -21,7 +22,12 @@ void main() {
         CanonicalSurface.grass,
       ], points: points),
     );
-    final data = SurfaceRouteGeoJson.build(summary);
+    final data = SurfaceRouteGeoJson.build(
+      SurfaceJournal(
+        AutomaticSurfaceSnapshot.fromSummary(summary),
+        const [],
+      ).effective,
+    );
     final features = data['features'] as List;
     expect(features, hasLength(3));
     final reconstructedEdges = <Object?>[];
@@ -60,7 +66,15 @@ void main() {
     final summary = WalkSurfaceSummary.fromAnalysis(
       RouteMatcher.analyze([], []),
     );
-    expect(SurfaceRouteGeoJson.build(summary)['features'], isEmpty);
+    expect(
+      SurfaceRouteGeoJson.build(
+        SurfaceJournal(
+          AutomaticSurfaceSnapshot.fromSummary(summary),
+          const [],
+        ).effective,
+      )['features'],
+      isEmpty,
+    );
     expect(
       CanonicalSurface.values.map(SurfaceRouteGeoJson.color).toSet(),
       hasLength(CanonicalSurface.values.length),

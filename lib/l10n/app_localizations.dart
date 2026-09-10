@@ -779,7 +779,7 @@ abstract class AppLocalizations {
   /// No description provided for @surfaceReviewNotice.
   ///
   /// In en, this message translates to:
-  /// **'Automatic surface estimates from available map data. Unknown means there is not enough evidence to identify a surface. This review is read-only. Analysis results are recalculated and are not saved.'**
+  /// **'Surface estimates can be corrected below. Saved analysis and your corrections stay on this device. Unknown is a valid surface label.'**
   String get surfaceReviewNotice;
 
   /// No description provided for @surfaceReviewFailed.
@@ -895,6 +895,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{value}%'**
   String analysisDiagnosticsPercentage(num value);
+
+  /// No description provided for @surfaceReanalyze.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-analyze surfaces'**
+  String get surfaceReanalyze;
+
+  /// No description provided for @surfaceJournalInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved surface data is invalid. Your recorded walk is intact. Re-analysis can rebuild the automatic result; corrections will not be discarded.'**
+  String get surfaceJournalInvalid;
+
+  /// No description provided for @surfaceAnalysisSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the analysis locally. Any previous saved review and corrections are unchanged. Try again.'**
+  String get surfaceAnalysisSaveFailed;
+
+  /// No description provided for @surfacePreviousKept.
+  ///
+  /// In en, this message translates to:
+  /// **'The previous saved review and corrections are still shown.'**
+  String get surfacePreviousKept;
+
+  /// No description provided for @surfacePreviewUnsaved.
+  ///
+  /// In en, this message translates to:
+  /// **'This incomplete preview is not saved. Corrections become available after a complete analysis is saved.'**
+  String get surfacePreviewUnsaved;
+
+  /// No description provided for @surfaceSegments.
+  ///
+  /// In en, this message translates to:
+  /// **'Route segments'**
+  String get surfaceSegments;
+
+  /// No description provided for @surfaceSelectSegment.
+  ///
+  /// In en, this message translates to:
+  /// **'Segments are ordered from the start of your walk. Tap a segment to correct its surface.'**
+  String get surfaceSelectSegment;
+
+  /// No description provided for @surfaceSegment.
+  ///
+  /// In en, this message translates to:
+  /// **'Segment {number}'**
+  String surfaceSegment(int number);
+
+  /// No description provided for @surfaceSegmentPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'{start}–{end} from the start'**
+  String surfaceSegmentPosition(String start, String end);
+
+  /// No description provided for @surfaceCorrected.
+  ///
+  /// In en, this message translates to:
+  /// **'Corrected'**
+  String get surfaceCorrected;
+
+  /// No description provided for @surfaceAutomatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get surfaceAutomatic;
+
+  /// No description provided for @surfaceChooseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Surface'**
+  String get surfaceChooseLabel;
+
+  /// No description provided for @surfaceCorrectionNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your choice applies to this whole segment and remains after re-analysis. Choose Unknown if no supported label fits.'**
+  String get surfaceCorrectionNotice;
+
+  /// No description provided for @surfaceCorrectionSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save this change. Your saved review is unchanged. Try again.'**
+  String get surfaceCorrectionSaveFailed;
+
+  /// No description provided for @surfaceRestoreAutomatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore automatic'**
+  String get surfaceRestoreAutomatic;
+
+  /// No description provided for @surfaceSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get surfaceSave;
 }
 
 class _AppLocalizationsDelegate

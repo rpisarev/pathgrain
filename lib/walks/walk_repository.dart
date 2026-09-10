@@ -1,11 +1,20 @@
 import 'app_database.dart';
 import 'walk_distance.dart';
 import 'walk_models.dart';
+import 'walk_surface_repository.dart';
 
 class WalkRepository {
   WalkRepository(this._appDatabase);
 
   final AppDatabase _appDatabase;
+
+  WalkSurfaceRepository get surfaces => WalkSurfaceRepository(_appDatabase);
+
+  /// Foreign keys cascade to recorded points, automatic segments and corrections.
+  Future<void> deleteWalk(int walkId) async {
+    final database = await _appDatabase.database;
+    await database.delete('walks', where: 'id = ?', whereArgs: [walkId]);
+  }
 
   static const String _walkSelect = '''
     SELECT

@@ -1,8 +1,8 @@
 # MVP 0.1-C — Surface segments and read-only walk review
 
-Status: implemented; automated verification is recorded below. Physical Pixel
-acceptance remains pending. The complete MVP 0.1 correction/save loop is not
-complete.
+Status: implemented; automated verification and focused physical Pixel review
+observations are recorded below. This was not exhaustive production validation.
+The complete MVP 0.1 correction/save loop was not complete at 0.1-C.
 
 ## Purpose and boundary
 
@@ -225,11 +225,42 @@ The build emitted the existing Gradle Java native-access warning and the
 `maplibre_gl` Kotlin Gradle Plugin / future Built-in Kotlin migration warning.
 Neither prevented the debug build.
 
-No live Overpass query or physical-device acceptance was performed in this task.
-Widget tests use substitute maps for review integration; the fallback test
-exercises Flutter timeout/switch controls without native drawing or remote
-tiles. These do not establish Android native rendering, field matching quality
-or Home/screen-lock recorder behavior.
+The automated implementation checks above did not themselves establish
+physical-device acceptance. Widget tests use substitute maps for review
+integration; the fallback test exercises Flutter timeout/switch controls without
+native drawing or remote tiles. The subsequent focused Pixel observations are
+recorded separately below; Home/screen-lock recorder behavior is not established
+by these review checks.
+
+## Physical Pixel observations and later frozen-data verification
+
+The real 0.1-C read-only review was exercised on a physical Pixel using existing
+saved walks. Observed behavior included:
+
+- Surface Review opened and analyzed real saved walks.
+- Surface distance reconciled with saved walk distance.
+- Original GPS geometry appeared as surface-colored segments.
+- Known concrete, paving-stones and asphalt examples were correctly represented.
+- A particularly useful example selected a paving-stones pedestrian sidewalk
+  rather than a nearby parallel asphalt vehicle road.
+- UNKNOWN remained visible rather than being filled; UNKNOWN-by-reason
+  diagnostics were exercised.
+
+A frozen export of the **3,775.4 m** walk subsequently reproduced the phone
+analysis exactly at display precision. This field work exposed matcher ambiguity
+patterns and supported the later narrow retained crossing-node correction.
+
+The final retained crossing-node v2 refinement was verified against the frozen
+Pixel dataset and automated tests, as recorded in the
+[0.1-B note](mvp-0.1-b-route-surface-matching.md). The repository does not establish
+that a new APK containing that exact final patch was separately exercised on the
+Pixel. Frozen-data verification must not be described as new physical acceptance
+of that patch.
+
+These observations establish focused real-device review behavior, not exhaustive
+matching quality, production readiness, broad native-map/cache coverage or
+recorder Home/screen-lock acceptance. Corrections and durable analysis/save were
+still absent at 0.1-C.
 
 ## Intentional limits and next milestones
 

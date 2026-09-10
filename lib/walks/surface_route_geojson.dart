@@ -1,5 +1,5 @@
 import 'analysis/route_analysis.dart';
-import 'analysis/walk_surface_summary.dart';
+import 'analysis/surface_journal.dart';
 
 /// Shared legend/map colors. UNKNOWN has its own visible color.
 abstract final class SurfaceRouteGeoJson {
@@ -16,17 +16,18 @@ abstract final class SurfaceRouteGeoJson {
 
   /// Local MapLibre data: each line is an exact slice of the original samples.
   /// Adjacent segments share a boundary point, never an edge. No OSM geometry.
-  static Map<String, Object?> build(WalkSurfaceSummary summary) => {
+  static Map<String, Object?> build(EffectiveSurfaceSummary summary) => {
     'type': 'FeatureCollection',
     'features': [
       for (final segment in summary.segments)
         {
           'type': 'Feature',
           'properties': {
-            'surface': segment.surface.surface.name,
-            'color': color(segment.surface.surface),
+            'surface': segment.surface.name,
+            'color': color(segment.surface),
             'startEdge': segment.startEdgeIndex,
             'endEdge': segment.endEdgeIndex,
+            'corrected': segment.isCorrected,
           },
           'geometry': {
             'type': 'LineString',
@@ -36,10 +37,7 @@ abstract final class SurfaceRouteGeoJson {
                 i <= segment.endEdgeIndex;
                 i++
               )
-                [
-                  summary.analysis.samples[i].original.longitude,
-                  summary.analysis.samples[i].original.latitude,
-                ],
+                [summary.points[i].longitude, summary.points[i].latitude],
             ],
           },
         },

@@ -135,7 +135,7 @@
   "surfaceAnalyzing": "Loading map data and analyzing surfaces…",
   "surfaceRetry": "Try again",
   "surfaceAccessNotice": "Pathgrain uses cached OpenStreetMap data and downloads missing map areas from Overpass. The map uses OpenFreeMap. Providers can see approximate requested areas, your IP address and request time. Your GPS track and timestamps stay on this device.",
-  "surfaceReviewNotice": "Automatic surface estimates from available map data. Unknown means there is not enough evidence to identify a surface. This review is read-only. Analysis results are recalculated and are not saved.",
+  "surfaceReviewNotice": "Surface estimates can be corrected below. Saved analysis and your corrections stay on this device. Unknown is a valid surface label.",
   "surfaceReviewFailed": "Surface review could not be loaded. Your saved walk is unchanged.",
   "surfaceEvidenceIncomplete": "Some map data is unavailable. Surfaces remain unknown until enough data is available. Wait before trying again.",
   "surfaceCacheUnavailable": "Some map data could not be cached for later use.",
@@ -183,5 +183,23 @@
         "format": "decimalPattern"
       }
     }
-  }
+  },
+  "surfaceReanalyze": "Re-analyze surfaces",
+  "surfaceJournalInvalid": "Saved surface data is invalid. Your recorded walk is intact. Re-analysis can rebuild the automatic result; corrections will not be discarded.",
+  "surfaceAnalysisSaveFailed": "Could not save the analysis locally. Any previous saved review and corrections are unchanged. Try again.",
+  "surfacePreviousKept": "The previous saved review and corrections are still shown.",
+  "surfacePreviewUnsaved": "This incomplete preview is not saved. Corrections become available after a complete analysis is saved.",
+  "surfaceSegments": "Route segments",
+  "surfaceSelectSegment": "Segments are ordered from the start of your walk. Tap a segment to correct its surface.",
+  "surfaceSegment": "Segment {number}",
+  "surfaceSegmentPosition": "{start}–{end} from the start",
+  "surfaceCorrected": "Corrected",
+  "surfaceAutomatic": "Automatic",
+  "surfaceChooseLabel": "Surface",
+  "surfaceCorrectionNotice": "Your choice applies to this whole segment and remains after re-analysis. Choose Unknown if no supported label fits.",
+  "surfaceCorrectionSaveFailed": "Could not save this change. Your saved review is unchanged. Try again.",
+  "surfaceRestoreAutomatic": "Restore automatic",
+  "surfaceSave": "Save",
+  "@surfaceSegment": {"placeholders": {"number": {"type": "int"}}},
+  "@surfaceSegmentPosition": {"placeholders": {"start": {"type": "String"}, "end": {"type": "String"}}}
 }

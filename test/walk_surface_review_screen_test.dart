@@ -24,6 +24,9 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'support/analysis_fixtures.dart';
 import 'support/evidence_fakes.dart';
 import 'support/surface_fixtures.dart';
+import 'support/surface_journal_fakes.dart';
+
+import 'package:pathgrain/walks/analysis/surface_journal.dart';
 
 Widget localized(Widget child, {String locale = 'en'}) => MaterialApp(
   locale: Locale(locale),
@@ -61,6 +64,7 @@ void main() {
       await tester.pumpWidget(
         localized(
           WalkSurfaceReviewScreen(
+            surfaceRepository: MemorySurfaceRepository(),
             walk: savedWalk(points),
             loadPoints: () async {
               loads++;
@@ -100,7 +104,7 @@ void main() {
       }
       expect(summary.reconcilesWith(savedWalk(points).distanceMeters), isTrue);
       for (var i = 0; i < points.length; i++) {
-        expect(summary.analysis.samples[i].original, same(points[i]));
+        expect(summary.points[i], same(points[i]));
       }
       expect(find.text(l.surfaceDistanceMismatch), findsNothing);
       expect(find.text(l.analysisSelected('way/1')), findsNothing);
@@ -208,6 +212,7 @@ void main() {
         await tester.pumpWidget(
           localized(
             WalkSurfaceReviewScreen(
+              surfaceRepository: MemorySurfaceRepository(),
               walk: savedWalk(points),
               loadPoints: () async => points,
               evidenceRepository: EvidenceRepository(
@@ -256,6 +261,7 @@ void main() {
     await tester.pumpWidget(
       localized(
         WalkSurfaceReviewScreen(
+          surfaceRepository: MemorySurfaceRepository(),
           walk: savedWalk(points),
           loadPoints: () async {
             if (attempts++ == 0) throw StateError('Synthetic local failure');
@@ -288,6 +294,7 @@ void main() {
       await tester.pumpWidget(
         localized(
           WalkSurfaceReviewScreen(
+            surfaceRepository: MemorySurfaceRepository(),
             walk: savedWalk(points),
             loadPoints: () => local.future,
             evidenceRepository: EvidenceRepository(
@@ -331,6 +338,7 @@ void main() {
       WalkSurfaceMap? latest;
       Widget review() => localized(
         WalkSurfaceReviewScreen(
+          surfaceRepository: MemorySurfaceRepository(),
           walk: savedWalk(points),
           loadPoints: () async => points,
           evidenceRepository: repository,
@@ -386,6 +394,7 @@ void main() {
       await tester.pumpWidget(
         localized(
           WalkSurfaceReviewScreen(
+            surfaceRepository: MemorySurfaceRepository(),
             walk: savedWalk(points, distance: 999),
             loadPoints: () async => points,
             evidenceRepository: EvidenceRepository(
@@ -429,6 +438,7 @@ void main() {
       await tester.pumpWidget(
         localized(
           WalkSurfaceReviewScreen(
+            surfaceRepository: MemorySurfaceRepository(),
             walk: savedWalk([]),
             loadPoints: () async => [point],
             evidenceRepository: EvidenceRepository(
@@ -455,6 +465,7 @@ void main() {
     await tester.pumpWidget(
       localized(
         WalkSurfaceReviewScreen(
+          surfaceRepository: MemorySurfaceRepository(),
           walk: savedWalk(points),
           loadPoints: () async => points,
           evidenceRepository: repository,
@@ -485,7 +496,16 @@ void main() {
       RouteMatcher.analyze(straight(), []),
     );
     await tester.pumpWidget(
-      localized(Scaffold(body: WalkSurfaceMap(summary: summary))),
+      localized(
+        Scaffold(
+          body: WalkSurfaceMap(
+            summary: SurfaceJournal(
+              AutomaticSurfaceSnapshot.fromSummary(summary),
+              const [],
+            ).effective,
+          ),
+        ),
+      ),
     );
     await tester.pump(const Duration(seconds: 21));
     expect(find.text(l.surfaceMapUnavailable), findsOneWidget);

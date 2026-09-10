@@ -539,7 +539,7 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get surfaceReviewNotice =>
-      'Автоматична оцінка покриття за наявними даними карти. Невідоме покриття означає, що даних для його визначення недостатньо. Цей перегляд доступний лише для читання. Результати аналізу обчислюються заново й не зберігаються.';
+      'Оцінки покриття можна виправити нижче. Збережений аналіз і ваші виправлення залишаються на цьому пристрої. Невідоме покриття — допустимий варіант.';
 
   @override
   String get surfaceReviewFailed =>
@@ -618,4 +618,63 @@ class AppLocalizationsUk extends AppLocalizations {
 
     return '$valueString%';
   }
+
+  @override
+  String get surfaceReanalyze => 'Повторно аналізувати покриття';
+
+  @override
+  String get surfaceJournalInvalid =>
+      'Збережені дані покриття некоректні. Записана прогулянка не пошкоджена. Повторний аналіз може відновити автоматичний результат; виправлення не буде видалено.';
+
+  @override
+  String get surfaceAnalysisSaveFailed =>
+      'Не вдалося зберегти аналіз на пристрої. Попередній збережений перегляд і виправлення не змінилися. Спробуйте ще раз.';
+
+  @override
+  String get surfacePreviousKept =>
+      'Показано попередній збережений перегляд із виправленнями.';
+
+  @override
+  String get surfacePreviewUnsaved =>
+      'Цей неповний перегляд не збережено. Виправлення стануть доступними після збереження повного аналізу.';
+
+  @override
+  String get surfaceSegments => 'Сегменти маршруту';
+
+  @override
+  String get surfaceSelectSegment =>
+      'Сегменти впорядковано від початку прогулянки. Натисніть сегмент, щоб виправити його покриття.';
+
+  @override
+  String surfaceSegment(int number) {
+    return 'Сегмент $number';
+  }
+
+  @override
+  String surfaceSegmentPosition(String start, String end) {
+    return '$start–$end від початку';
+  }
+
+  @override
+  String get surfaceCorrected => 'Виправлено';
+
+  @override
+  String get surfaceAutomatic => 'Автоматично';
+
+  @override
+  String get surfaceChooseLabel => 'Покриття';
+
+  @override
+  String get surfaceCorrectionNotice =>
+      'Ваш вибір діє для всього сегмента й зберігається після повторного аналізу. Виберіть невідоме покриття, якщо жодна підтримувана назва не підходить.';
+
+  @override
+  String get surfaceCorrectionSaveFailed =>
+      'Не вдалося зберегти зміну. Збережений перегляд не змінився. Спробуйте ще раз.';
+
+  @override
+  String get surfaceRestoreAutomatic => 'Відновити автоматичне';
+
+  @override
+  String get surfaceSave => 'Зберегти';
 }

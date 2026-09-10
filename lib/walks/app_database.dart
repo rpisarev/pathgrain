@@ -11,7 +11,7 @@ class AppDatabase {
 
   AppDatabase._(this._databaseFactory, this._databasePath);
 
-  static const int schemaVersion = 1;
+  static const int schemaVersion = 2;
   static const String fileName = 'pathgrain.sqlite';
 
   final DatabaseFactory _databaseFactory;
@@ -37,6 +37,9 @@ class AppDatabase {
           await database.execute('PRAGMA foreign_keys = ON');
         },
         onCreate: _createSchema,
+        onUpgrade: (database, oldVersion, newVersion) async {
+          if (oldVersion < 2) await _createSurfaceSchema(database);
+        },
       ),
     );
   }
@@ -81,5 +84,59 @@ class AppDatabase {
       CREATE INDEX walk_points_walk_sequence
       ON walk_points (walk_id, sequence)
     ''');
+    await _createSurfaceSchema(database);
+  }
+
+  static Future<void> _createSurfaceSchema(Database database) async {
+    await database.execute('''
+      CREATE TABLE walk_surface_analyses (
+        walk_id INTEGER PRIMARY KEY REFERENCES walks(id) ON DELETE CASCADE,
+        point_count INTEGER NOT NULL CHECK (point_count >= 2),
+        points_valid INTEGER NOT NULL DEFAULT 1 CHECK (points_valid IN (0, 1))
+      )
+    ''');
+    await database.execute('''
+      CREATE TABLE walk_surface_segments (
+        walk_id INTEGER NOT NULL REFERENCES walk_surface_analyses(walk_id)
+          ON DELETE CASCADE,
+        ordinal INTEGER NOT NULL CHECK (ordinal >= 0),
+        start_edge INTEGER NOT NULL CHECK (start_edge >= 0),
+        end_edge INTEGER NOT NULL CHECK (end_edge > start_edge),
+        surface TEXT NOT NULL,
+        assignment TEXT NOT NULL,
+        surface_reason TEXT NOT NULL,
+        edge_reason TEXT NOT NULL,
+        from_feature_key TEXT,
+        to_feature_key TEXT,
+        PRIMARY KEY (walk_id, ordinal)
+      )
+    ''');
+    await database.execute('''
+      CREATE TABLE walk_surface_corrections (
+        walk_id INTEGER NOT NULL REFERENCES walk_surface_analyses(walk_id)
+          ON DELETE CASCADE,
+        start_edge INTEGER NOT NULL CHECK (start_edge >= 0),
+        end_edge INTEGER NOT NULL CHECK (end_edge > start_edge),
+        surface TEXT NOT NULL,
+        PRIMARY KEY (walk_id, start_edge, end_edge)
+      )
+    ''');
+    // Exact point-sequence mutation detection, without geometry copies or hashes.
+    // These triggers never modify recorder rows or delete user corrections.
+    for (final operation in ['INSERT', 'UPDATE', 'DELETE']) {
+      final ids = switch (operation) {
+        'INSERT' => 'NEW.walk_id',
+        'DELETE' => 'OLD.walk_id',
+        _ => 'OLD.walk_id, NEW.walk_id',
+      };
+      await database.execute('''
+        CREATE TRIGGER surface_points_${operation.toLowerCase()}
+        AFTER $operation ON walk_points
+        BEGIN
+          UPDATE walk_surface_analyses SET points_valid = 0
+          WHERE walk_id IN ($ids);
+        END
+      ''');
+    }
   }
 }

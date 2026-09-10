@@ -8,13 +8,13 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../l10n/app_localizations.dart';
 import '../map/development_map_style.dart';
-import 'analysis/walk_surface_summary.dart';
+import 'analysis/surface_journal.dart';
 import 'surface_route_geojson.dart';
 
 /// Read-only rendering of original GPS ranges. Does not display matched ways.
 class WalkSurfaceMap extends StatefulWidget {
   const WalkSurfaceMap({super.key, required this.summary});
-  final WalkSurfaceSummary summary;
+  final EffectiveSurfaceSummary summary;
 
   @override
   State<WalkSurfaceMap> createState() => _WalkSurfaceMapState();
@@ -27,11 +27,39 @@ class _WalkSurfaceMapState extends State<WalkSurfaceMap> {
   bool _ready = false;
   bool _failed = false;
   int _generation = 0;
+  Future<void> _sourceUpdates = Future.value();
 
   @override
   void initState() {
     super.initState();
     _startDeadline();
+  }
+
+  @override
+  void didUpdateWidget(WalkSurfaceMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.summary, widget.summary) && _ready) {
+      _queueSourceUpdate();
+    }
+  }
+
+  void _queueSourceUpdate() {
+    final generation = _generation;
+    _sourceUpdates = _sourceUpdates.then((_) => _updateSource(generation));
+  }
+
+  Future<void> _updateSource(int generation) async {
+    final controller = _controller;
+    if (controller == null || !mounted || generation != _generation) return;
+    try {
+      await controller.setGeoJsonSource(
+        'walk-surfaces',
+        SurfaceRouteGeoJson.build(widget.summary),
+      );
+      if (mounted && generation == _generation) setState(() => _failed = false);
+    } catch (_) {
+      if (mounted && generation == _generation) setState(() => _failed = true);
+    }
   }
 
   void _startDeadline() {
@@ -50,9 +78,9 @@ class _WalkSurfaceMapState extends State<WalkSurfaceMap> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final points = widget.summary.analysis.samples;
+    final points = widget.summary.points;
     if (points.length < 2) return Center(child: Text(l.routeUnavailable));
-    final first = points.first.original;
+    final first = points.first;
     final generation = _generation;
     return Stack(
       children: [
@@ -153,16 +181,16 @@ class _WalkSurfaceMapState extends State<WalkSurfaceMap> {
         ),
         enableInteraction: false,
       );
-      final points = widget.summary.analysis.samples;
-      var south = points.first.original.latitude;
+      final points = widget.summary.points;
+      var south = points.first.latitude;
       var north = south;
-      var west = points.first.original.longitude;
+      var west = points.first.longitude;
       var east = west;
       for (final sample in points.skip(1)) {
-        south = math.min(south, sample.original.latitude);
-        north = math.max(north, sample.original.latitude);
-        west = math.min(west, sample.original.longitude);
-        east = math.max(east, sample.original.longitude);
+        south = math.min(south, sample.latitude);
+        north = math.max(north, sample.latitude);
+        west = math.min(west, sample.longitude);
+        east = math.max(east, sample.longitude);
       }
       if (!mounted || generation != _generation) return;
       // Avoid degenerate native bounds for a stationary route.
@@ -182,11 +210,19 @@ class _WalkSurfaceMapState extends State<WalkSurfaceMap> {
         );
       }
       if (!mounted || generation != _generation) return;
+      // A correction may have committed while the native style was loading.
+      final drawnSummary = widget.summary;
+      await controller.setGeoJsonSource(
+        'walk-surfaces',
+        SurfaceRouteGeoJson.build(drawnSummary),
+      );
+      if (!mounted || generation != _generation) return;
       _deadline?.cancel();
       setState(() {
         _ready = true;
         _failed = false;
       });
+      if (!identical(drawnSummary, widget.summary)) _queueSourceUpdate();
     } catch (_) {
       // SDK errors may contain geometry; never log or display raw exceptions.
       if (mounted && generation == _generation) {

@@ -62,6 +62,7 @@ class _WalkDetailScreenState extends State<WalkDetailScreen> {
                 MaterialPageRoute<void>(
                   builder: (context) => WalkSurfaceReviewScreen(
                     walk: widget.walk,
+                    surfaceRepository: widget.repository.surfaces,
                     loadPoints: () =>
                         widget.repository.pointsForWalk(widget.walk.id),
                   ),
