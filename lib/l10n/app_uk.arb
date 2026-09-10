@@ -120,5 +120,59 @@
   "@analysisReason": {"placeholders": {"value": {"type": "String"}}},
   "@analysisSurface": {"placeholders": {"value": {"type": "String"}}},
   "@analysisAssignment": {"placeholders": {"value": {"type": "String"}}},
-  "@analysisConfidence": {"placeholders": {"value": {"type": "String"}}}
+  "@analysisConfidence": {"placeholders": {"value": {"type": "String"}}},
+  "surfaceReview": "Перегляд покриття",
+  "surfaceAnalyze": "Аналізувати покриття",
+  "surfaceAnalyzing": "Завантаження даних карти й аналіз покриття…",
+  "surfaceRetry": "Спробувати ще раз",
+  "surfaceAccessNotice": "Pathgrain використовує кешовані дані OpenStreetMap і завантажує відсутні ділянки карти з Overpass. Мапа використовує OpenFreeMap. Постачальники можуть бачити приблизні запитані ділянки, вашу IP-адресу й час запиту. Ваш GPS-маршрут і часові позначки залишаються на цьому пристрої.",
+  "surfaceReviewNotice": "Автоматична оцінка покриття за наявними даними карти. Невідоме покриття означає, що даних для його визначення недостатньо. Цей перегляд доступний лише для читання. Результати аналізу обчислюються заново й не зберігаються.",
+  "surfaceReviewFailed": "Не вдалося завантажити аналіз покриття. Збережена прогулянка не змінилася.",
+  "surfaceEvidenceIncomplete": "Частина даних карти недоступна. Покриття залишається невідомим, доки не буде достатньо даних. Зачекайте перед повторною спробою.",
+  "surfaceCacheUnavailable": "Частину даних карти не вдалося зберегти в кеші для подальшого використання.",
+  "surfaceBreakdown": "Відстань за покриттям",
+  "surfaceTotal": "Загальна відстань за покриттям: {distance}",
+  "@surfaceTotal": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "surfaceRoundingNotice": "Відстані округлено окремо, тому сума показаних рядків може трохи відрізнятися від загальної.",
+  "surfaceDistanceMismatch": "Відстань проаналізованого маршруту відрізняється від збереженої. Обидві показано без підгонки відстаней за покриттям.",
+  "surfaceRouteLegend": "Кольори позначають ваш записаний GPS-маршрут і відповідають списку покриттів вище. Червоний позначає невідоме покриття, зокрема короткі проміжки.",
+  "surfaceMapUnavailable": "Мапа маршруту завантажилася не повністю. Відстані за покриттям залишаються доступними.",
+  "surfacePlainMap": "Використати порожню мапу",
+  "analysisUnknownDistances": "Відстань UNKNOWN за причинами",
+  "analysisUnknownTotal": "UNKNOWN за всю прогулянку: {distance}",
+  "@analysisUnknownTotal": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisSegmentCount": "Сегменти покриття записаного маршруту: {count}",
+  "@analysisSegmentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "analysisUnknownReasonNotice": "Кожен відрізок UNKNOWN враховано за однією наявною причиною невизначеного покриття. Дані GPS кінцевих точок можуть пояснити її докладніше; причини не враховуються двічі.",
+  "analysisDiagnosticsTitle": "Діагностика покриття прогулянки",
+  "analysisCopyDiagnostics": "Копіювати діагностику",
+  "analysisDiagnosticsCopied": "Діагностику скопійовано",
+  "analysisDiagnosticsCopyFailed": "Не вдалося скопіювати діагностику",
+  "analysisDiagnosticsPercentage": "{value}%",
+  "@analysisDiagnosticsPercentage": {
+    "placeholders": {
+      "value": {
+        "type": "num",
+        "format": "decimalPattern"
+      }
+    }
+  }
 }

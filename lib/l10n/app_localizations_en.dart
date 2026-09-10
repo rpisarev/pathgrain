@@ -517,4 +517,101 @@ class AppLocalizationsEn extends AppLocalizations {
     });
     return '$_temp0';
   }
+
+  @override
+  String get surfaceReview => 'Surface review';
+
+  @override
+  String get surfaceAnalyze => 'Analyze surfaces';
+
+  @override
+  String get surfaceAnalyzing => 'Loading map data and analyzing surfaces…';
+
+  @override
+  String get surfaceRetry => 'Try again';
+
+  @override
+  String get surfaceAccessNotice =>
+      'Pathgrain uses cached OpenStreetMap data and downloads missing map areas from Overpass. The map uses OpenFreeMap. Providers can see approximate requested areas, your IP address and request time. Your GPS track and timestamps stay on this device.';
+
+  @override
+  String get surfaceReviewNotice =>
+      'Automatic surface estimates from available map data. Unknown means there is not enough evidence to identify a surface. This review is read-only. Analysis results are recalculated and are not saved.';
+
+  @override
+  String get surfaceReviewFailed =>
+      'Surface review could not be loaded. Your saved walk is unchanged.';
+
+  @override
+  String get surfaceEvidenceIncomplete =>
+      'Some map data is unavailable. Surfaces remain unknown until enough data is available. Wait before trying again.';
+
+  @override
+  String get surfaceCacheUnavailable =>
+      'Some map data could not be cached for later use.';
+
+  @override
+  String get surfaceBreakdown => 'Distance by surface';
+
+  @override
+  String surfaceTotal(String distance) {
+    return 'Total surface distance: $distance';
+  }
+
+  @override
+  String get surfaceRoundingNotice =>
+      'Distances are rounded independently, so displayed rows may not add up exactly.';
+
+  @override
+  String get surfaceDistanceMismatch =>
+      'The analyzed route distance differs from the saved distance. Both are shown without adjusting the surface distances.';
+
+  @override
+  String get surfaceRouteLegend =>
+      'Colors follow your recorded GPS route and match the surface list above. Red marks unknown surface, including short gaps.';
+
+  @override
+  String get surfaceMapUnavailable =>
+      'The route map could not fully load. The surface distances are still available.';
+
+  @override
+  String get surfacePlainMap => 'Use plain map';
+
+  @override
+  String get analysisUnknownDistances => 'UNKNOWN distance by reason';
+
+  @override
+  String analysisUnknownTotal(String distance) {
+    return 'UNKNOWN on the whole walk: $distance';
+  }
+
+  @override
+  String analysisSegmentCount(int count) {
+    return 'Original-route surface segments: $count';
+  }
+
+  @override
+  String get analysisUnknownReasonNotice =>
+      'Each UNKNOWN edge contributes to one existing surface reason. Endpoint GPS details may explain that reason further; causes are not counted twice.';
+
+  @override
+  String get analysisDiagnosticsTitle => 'Walk surface diagnostics';
+
+  @override
+  String get analysisCopyDiagnostics => 'Copy diagnostics';
+
+  @override
+  String get analysisDiagnosticsCopied => 'Diagnostics copied';
+
+  @override
+  String get analysisDiagnosticsCopyFailed => 'Could not copy diagnostics';
+
+  @override
+  String analysisDiagnosticsPercentage(num value) {
+    final intl.NumberFormat valueNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String valueString = valueNumberFormat.format(value);
+
+    return '$valueString%';
+  }
 }

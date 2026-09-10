@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../walks/walk_models.dart';
 import '../../walks/analysis/route_analysis.dart';
 import '../../walks/analysis/route_matcher.dart';
+import '../../walks/analysis/walk_surface_summary.dart';
 import 'evidence_cache.dart';
 import 'evidence_inspector.dart';
 import 'evidence_map.dart';
@@ -14,6 +15,7 @@ import 'evidence_repository.dart';
 import 'geographic_cell.dart';
 import 'osm_evidence_provider.dart';
 import 'overpass_evidence_provider.dart';
+import 'surface_summary_details.dart';
 
 class EvidenceDebugScreen extends StatefulWidget {
   const EvidenceDebugScreen({
@@ -48,6 +50,7 @@ class _EvidenceDebugScreenState extends State<EvidenceDebugScreen> {
   bool _showAnalysis = false;
   int? _selectedSequence;
   RouteAnalysis? _analysis;
+  WalkSurfaceSummary? _surfaceSummary;
   bool _useBasemap = true;
 
   @override
@@ -88,6 +91,7 @@ class _EvidenceDebugScreenState extends State<EvidenceDebugScreen> {
       _busy = true;
       _localFailure = false;
       _analysis = null;
+      _surfaceSummary = null;
     });
     try {
       final coordinates = _points.map(
@@ -103,14 +107,20 @@ class _EvidenceDebugScreenState extends State<EvidenceDebugScreen> {
             : RouteMatcher.analyze(
                 _points,
                 snapshot.features,
-                evidenceComplete:
-                    snapshot.totalCells > 0 &&
-                    snapshot.availableCells == snapshot.totalCells &&
-                    snapshot.unparsedElements == 0,
+                evidenceComplete: snapshot.hasCompleteCoverage,
               );
+        WalkSurfaceSummary? summary;
+        if (analysis != null) {
+          try {
+            summary = WalkSurfaceSummary.fromAnalysis(analysis);
+          } on FormatException {
+            // Keep low-level diagnostics inspectable even for malformed data.
+          }
+        }
         setState(() {
           _snapshot = snapshot;
           _analysis = analysis;
+          _surfaceSummary = summary;
         });
       }
     } catch (_) {
@@ -148,6 +158,7 @@ class _EvidenceDebugScreenState extends State<EvidenceDebugScreen> {
       showDragHandle: true,
       builder: (context) => EvidenceInspector(
         analysis: _analysis,
+        surfaceSummary: _surfaceSummary,
         onSelectSample: (sequence) => setState(() {
           _selectedSequence = sequence;
           _showAnalysis = true;
@@ -285,6 +296,31 @@ class _EvidenceDebugScreenState extends State<EvidenceDebugScreen> {
                     onPressed: _points.isEmpty && _snapshot.features.isEmpty
                         ? null
                         : () => _showInspector(null, null),
+                  ),
+                  TextButton.icon(
+                    icon: const Icon(Icons.pie_chart_outline),
+                    label: Text(l.analysisUnknownDistances),
+                    onPressed: _surfaceSummary == null
+                        ? null
+                        : () => showModalBottomSheet<void>(
+                            context: context,
+                            isScrollControlled: true,
+                            showDragHandle: true,
+                            builder: (context) => SafeArea(
+                              child: SingleChildScrollView(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  0,
+                                  16,
+                                  24,
+                                ),
+                                child: SurfaceSummaryDetails(
+                                  summary: _surfaceSummary!,
+                                  initiallyExpanded: true,
+                                ),
+                              ),
+                            ),
+                          ),
                   ),
                   IconButton(
                     tooltip: l.evidenceAbout,

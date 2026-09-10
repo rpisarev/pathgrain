@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../walks/walk_models.dart';
 import '../../walks/analysis/route_analysis.dart';
+import '../../walks/analysis/walk_surface_summary.dart';
+import 'surface_summary_details.dart';
 import 'analysis_details.dart';
 import 'osm_evidence.dart';
 
@@ -12,12 +14,14 @@ class EvidenceInspector extends StatelessWidget {
     required this.points,
     required this.features,
     this.analysis,
+    this.surfaceSummary,
     this.onSelectSample,
   });
 
   final List<WalkPoint> points;
   final List<OsmFeature> features;
   final RouteAnalysis? analysis;
+  final WalkSurfaceSummary? surfaceSummary;
   final ValueChanged<int>? onSelectSample;
 
   @override
@@ -41,9 +45,16 @@ class EvidenceInspector extends StatelessWidget {
             if (index == 0) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: Text(
-                  l.evidenceInspectorHint,
-                  style: Theme.of(context).textTheme.bodySmall,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (surfaceSummary case final WalkSurfaceSummary summary)
+                      SurfaceSummaryDetails(summary: summary),
+                    Text(
+                      l.evidenceInspectorHint,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
                 ),
               );
             }

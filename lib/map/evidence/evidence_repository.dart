@@ -44,6 +44,13 @@ class EvidenceSnapshot {
   final DateTime? newestFetchedAt;
   final EvidenceFailure? failure;
 
+  /// The same conservative all-cell gate for both review and debug analysis.
+  bool get hasCompleteCoverage =>
+      !isLoading &&
+      totalCells > 0 &&
+      availableCells == totalCells &&
+      unparsedElements == 0;
+
   bool get isLoading => switch (phase) {
     EvidencePhase.loaded ||
     EvidencePhase.empty ||

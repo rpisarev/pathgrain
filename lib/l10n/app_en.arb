@@ -129,5 +129,59 @@
   "@analysisReason": {"placeholders": {"value": {"type": "String"}}},
   "@analysisSurface": {"placeholders": {"value": {"type": "String"}}},
   "@analysisAssignment": {"placeholders": {"value": {"type": "String"}}},
-  "@analysisConfidence": {"placeholders": {"value": {"type": "String"}}}
+  "@analysisConfidence": {"placeholders": {"value": {"type": "String"}}},
+  "surfaceReview": "Surface review",
+  "surfaceAnalyze": "Analyze surfaces",
+  "surfaceAnalyzing": "Loading map data and analyzing surfaces…",
+  "surfaceRetry": "Try again",
+  "surfaceAccessNotice": "Pathgrain uses cached OpenStreetMap data and downloads missing map areas from Overpass. The map uses OpenFreeMap. Providers can see approximate requested areas, your IP address and request time. Your GPS track and timestamps stay on this device.",
+  "surfaceReviewNotice": "Automatic surface estimates from available map data. Unknown means there is not enough evidence to identify a surface. This review is read-only. Analysis results are recalculated and are not saved.",
+  "surfaceReviewFailed": "Surface review could not be loaded. Your saved walk is unchanged.",
+  "surfaceEvidenceIncomplete": "Some map data is unavailable. Surfaces remain unknown until enough data is available. Wait before trying again.",
+  "surfaceCacheUnavailable": "Some map data could not be cached for later use.",
+  "surfaceBreakdown": "Distance by surface",
+  "surfaceTotal": "Total surface distance: {distance}",
+  "@surfaceTotal": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "surfaceRoundingNotice": "Distances are rounded independently, so displayed rows may not add up exactly.",
+  "surfaceDistanceMismatch": "The analyzed route distance differs from the saved distance. Both are shown without adjusting the surface distances.",
+  "surfaceRouteLegend": "Colors follow your recorded GPS route and match the surface list above. Red marks unknown surface, including short gaps.",
+  "surfaceMapUnavailable": "The route map could not fully load. The surface distances are still available.",
+  "surfacePlainMap": "Use plain map",
+  "analysisUnknownDistances": "UNKNOWN distance by reason",
+  "analysisUnknownTotal": "UNKNOWN on the whole walk: {distance}",
+  "@analysisUnknownTotal": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisSegmentCount": "Original-route surface segments: {count}",
+  "@analysisSegmentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "analysisUnknownReasonNotice": "Each UNKNOWN edge contributes to one existing surface reason. Endpoint GPS details may explain that reason further; causes are not counted twice.",
+  "analysisDiagnosticsTitle": "Walk surface diagnostics",
+  "analysisCopyDiagnostics": "Copy diagnostics",
+  "analysisDiagnosticsCopied": "Diagnostics copied",
+  "analysisDiagnosticsCopyFailed": "Could not copy diagnostics",
+  "analysisDiagnosticsPercentage": "{value}%",
+  "@analysisDiagnosticsPercentage": {
+    "placeholders": {
+      "value": {
+        "type": "num",
+        "format": "decimalPattern"
+      }
+    }
+  }
 }

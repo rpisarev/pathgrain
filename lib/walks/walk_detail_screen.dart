@@ -7,6 +7,7 @@ import 'walk_formatters.dart';
 import 'walk_map.dart';
 import 'walk_models.dart';
 import 'walk_repository.dart';
+import 'walk_surface_review_screen.dart';
 
 class WalkDetailScreen extends StatefulWidget {
   const WalkDetailScreen({
@@ -51,6 +52,22 @@ class _WalkDetailScreenState extends State<WalkDetailScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
             child: _WalkSummary(walk: widget.walk),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: OutlinedButton.icon(
+              icon: const Icon(Icons.layers_outlined),
+              label: Text(localizations.surfaceReview),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (context) => WalkSurfaceReviewScreen(
+                    walk: widget.walk,
+                    loadPoints: () =>
+                        widget.repository.pointsForWalk(widget.walk.id),
+                  ),
+                ),
+              ),
+            ),
           ),
           Expanded(
             child: FutureBuilder<List<WalkPoint>>(

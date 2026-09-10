@@ -520,4 +520,102 @@ class AppLocalizationsUk extends AppLocalizations {
     });
     return '$_temp0';
   }
+
+  @override
+  String get surfaceReview => 'Перегляд покриття';
+
+  @override
+  String get surfaceAnalyze => 'Аналізувати покриття';
+
+  @override
+  String get surfaceAnalyzing => 'Завантаження даних карти й аналіз покриття…';
+
+  @override
+  String get surfaceRetry => 'Спробувати ще раз';
+
+  @override
+  String get surfaceAccessNotice =>
+      'Pathgrain використовує кешовані дані OpenStreetMap і завантажує відсутні ділянки карти з Overpass. Мапа використовує OpenFreeMap. Постачальники можуть бачити приблизні запитані ділянки, вашу IP-адресу й час запиту. Ваш GPS-маршрут і часові позначки залишаються на цьому пристрої.';
+
+  @override
+  String get surfaceReviewNotice =>
+      'Автоматична оцінка покриття за наявними даними карти. Невідоме покриття означає, що даних для його визначення недостатньо. Цей перегляд доступний лише для читання. Результати аналізу обчислюються заново й не зберігаються.';
+
+  @override
+  String get surfaceReviewFailed =>
+      'Не вдалося завантажити аналіз покриття. Збережена прогулянка не змінилася.';
+
+  @override
+  String get surfaceEvidenceIncomplete =>
+      'Частина даних карти недоступна. Покриття залишається невідомим, доки не буде достатньо даних. Зачекайте перед повторною спробою.';
+
+  @override
+  String get surfaceCacheUnavailable =>
+      'Частину даних карти не вдалося зберегти в кеші для подальшого використання.';
+
+  @override
+  String get surfaceBreakdown => 'Відстань за покриттям';
+
+  @override
+  String surfaceTotal(String distance) {
+    return 'Загальна відстань за покриттям: $distance';
+  }
+
+  @override
+  String get surfaceRoundingNotice =>
+      'Відстані округлено окремо, тому сума показаних рядків може трохи відрізнятися від загальної.';
+
+  @override
+  String get surfaceDistanceMismatch =>
+      'Відстань проаналізованого маршруту відрізняється від збереженої. Обидві показано без підгонки відстаней за покриттям.';
+
+  @override
+  String get surfaceRouteLegend =>
+      'Кольори позначають ваш записаний GPS-маршрут і відповідають списку покриттів вище. Червоний позначає невідоме покриття, зокрема короткі проміжки.';
+
+  @override
+  String get surfaceMapUnavailable =>
+      'Мапа маршруту завантажилася не повністю. Відстані за покриттям залишаються доступними.';
+
+  @override
+  String get surfacePlainMap => 'Використати порожню мапу';
+
+  @override
+  String get analysisUnknownDistances => 'Відстань UNKNOWN за причинами';
+
+  @override
+  String analysisUnknownTotal(String distance) {
+    return 'UNKNOWN за всю прогулянку: $distance';
+  }
+
+  @override
+  String analysisSegmentCount(int count) {
+    return 'Сегменти покриття записаного маршруту: $count';
+  }
+
+  @override
+  String get analysisUnknownReasonNotice =>
+      'Кожен відрізок UNKNOWN враховано за однією наявною причиною невизначеного покриття. Дані GPS кінцевих точок можуть пояснити її докладніше; причини не враховуються двічі.';
+
+  @override
+  String get analysisDiagnosticsTitle => 'Діагностика покриття прогулянки';
+
+  @override
+  String get analysisCopyDiagnostics => 'Копіювати діагностику';
+
+  @override
+  String get analysisDiagnosticsCopied => 'Діагностику скопійовано';
+
+  @override
+  String get analysisDiagnosticsCopyFailed =>
+      'Не вдалося скопіювати діагностику';
+
+  @override
+  String analysisDiagnosticsPercentage(num value) {
+    final intl.NumberFormat valueNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String valueString = valueNumberFormat.format(value);
+
+    return '$valueString%';
+  }
 }

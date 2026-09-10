@@ -745,6 +745,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{value, select, strong{Match confidence: strong evidence support (experimental)} supported{Match confidence: supported (experimental)} other{Match confidence: none}}'**
   String analysisConfidence(String value);
+
+  /// No description provided for @surfaceReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Surface review'**
+  String get surfaceReview;
+
+  /// No description provided for @surfaceAnalyze.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze surfaces'**
+  String get surfaceAnalyze;
+
+  /// No description provided for @surfaceAnalyzing.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading map data and analyzing surfaces…'**
+  String get surfaceAnalyzing;
+
+  /// No description provided for @surfaceRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get surfaceRetry;
+
+  /// No description provided for @surfaceAccessNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Pathgrain uses cached OpenStreetMap data and downloads missing map areas from Overpass. The map uses OpenFreeMap. Providers can see approximate requested areas, your IP address and request time. Your GPS track and timestamps stay on this device.'**
+  String get surfaceAccessNotice;
+
+  /// No description provided for @surfaceReviewNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic surface estimates from available map data. Unknown means there is not enough evidence to identify a surface. This review is read-only. Analysis results are recalculated and are not saved.'**
+  String get surfaceReviewNotice;
+
+  /// No description provided for @surfaceReviewFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Surface review could not be loaded. Your saved walk is unchanged.'**
+  String get surfaceReviewFailed;
+
+  /// No description provided for @surfaceEvidenceIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Some map data is unavailable. Surfaces remain unknown until enough data is available. Wait before trying again.'**
+  String get surfaceEvidenceIncomplete;
+
+  /// No description provided for @surfaceCacheUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Some map data could not be cached for later use.'**
+  String get surfaceCacheUnavailable;
+
+  /// No description provided for @surfaceBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance by surface'**
+  String get surfaceBreakdown;
+
+  /// No description provided for @surfaceTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total surface distance: {distance}'**
+  String surfaceTotal(String distance);
+
+  /// No description provided for @surfaceRoundingNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Distances are rounded independently, so displayed rows may not add up exactly.'**
+  String get surfaceRoundingNotice;
+
+  /// No description provided for @surfaceDistanceMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The analyzed route distance differs from the saved distance. Both are shown without adjusting the surface distances.'**
+  String get surfaceDistanceMismatch;
+
+  /// No description provided for @surfaceRouteLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Colors follow your recorded GPS route and match the surface list above. Red marks unknown surface, including short gaps.'**
+  String get surfaceRouteLegend;
+
+  /// No description provided for @surfaceMapUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The route map could not fully load. The surface distances are still available.'**
+  String get surfaceMapUnavailable;
+
+  /// No description provided for @surfacePlainMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Use plain map'**
+  String get surfacePlainMap;
+
+  /// No description provided for @analysisUnknownDistances.
+  ///
+  /// In en, this message translates to:
+  /// **'UNKNOWN distance by reason'**
+  String get analysisUnknownDistances;
+
+  /// No description provided for @analysisUnknownTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'UNKNOWN on the whole walk: {distance}'**
+  String analysisUnknownTotal(String distance);
+
+  /// No description provided for @analysisSegmentCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Original-route surface segments: {count}'**
+  String analysisSegmentCount(int count);
+
+  /// No description provided for @analysisUnknownReasonNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Each UNKNOWN edge contributes to one existing surface reason. Endpoint GPS details may explain that reason further; causes are not counted twice.'**
+  String get analysisUnknownReasonNotice;
+
+  /// No description provided for @analysisDiagnosticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Walk surface diagnostics'**
+  String get analysisDiagnosticsTitle;
+
+  /// No description provided for @analysisCopyDiagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy diagnostics'**
+  String get analysisCopyDiagnostics;
+
+  /// No description provided for @analysisDiagnosticsCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostics copied'**
+  String get analysisDiagnosticsCopied;
+
+  /// No description provided for @analysisDiagnosticsCopyFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not copy diagnostics'**
+  String get analysisDiagnosticsCopyFailed;
+
+  /// No description provided for @analysisDiagnosticsPercentage.
+  ///
+  /// In en, this message translates to:
+  /// **'{value}%'**
+  String analysisDiagnosticsPercentage(num value);
 }
 
 class _AppLocalizationsDelegate

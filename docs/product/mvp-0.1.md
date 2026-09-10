@@ -2,6 +2,10 @@
 
 Status: current milestone
 
+Read-only original-route segmentation, distance breakdown and saved-walk review
+are implemented in [0.1-C](../development/mvp-0.1-c-surface-segments-review.md).
+Physical acceptance, corrections and derived-result persistence remain pending.
+
 ## Goal
 
 Turn the existing Prototype 0.0 walk recorder into a surface-aware barefoot
@@ -165,5 +169,5 @@ this product specification deliberately does not select them:
 - the correction-selection interaction and minimum editable segment size;
 - analysis progress, failure, retry, caching, and re-analysis behavior,
   including how a saved correction retains precedence;
-- the distance-allocation and display-rounding rules used by the surface
-  breakdown.
+- final acceptance of the provisional 0.1-C distance-allocation and
+  display-rounding rules used by the surface breakdown.
