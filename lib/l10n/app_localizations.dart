@@ -320,6 +320,12 @@ abstract class AppLocalizations {
   /// **'There are not enough saved GPS points to draw this route.'**
   String get routeUnavailable;
 
+  /// No description provided for @walkRouteLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The saved route could not be loaded. Your walk is unchanged. Try again.'**
+  String get walkRouteLoadFailed;
+
   /// No description provided for @mapLoading.
   ///
   /// In en, this message translates to:

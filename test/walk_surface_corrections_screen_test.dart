@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pathgrain/l10n/app_localizations.dart';
@@ -83,6 +85,109 @@ Future<void> choose(
 }
 
 void main() {
+  for (final saved in [false, true]) {
+    testWidgets('rapid repeated analysis starts once (saved: $saved)', (
+      tester,
+    ) async {
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      final h = ReviewHarness(saved: saved);
+      await tester.pumpWidget(h.view());
+      await tester.pumpAndSettle();
+      final button = tester.widget<FilledButton>(
+        find.widgetWithText(
+          FilledButton,
+          saved ? l.surfaceReanalyze : l.surfaceAnalyze,
+        ),
+      );
+      // Two actions delivered before the disabled/loading UI has rebuilt.
+      button.onPressed!();
+      button.onPressed!();
+      await tester.pumpAndSettle();
+      expect(h.store.analysisSaves, 1);
+      expect(h.provider.calls, hasLength(1));
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+    });
+  }
+
+  testWidgets('rapid segment selection opens only one editor', (tester) async {
+    final h = ReviewHarness();
+    await tester.pumpWidget(h.view());
+    await tester.pumpAndSettle();
+    final row = find.byKey(const ValueKey('segment-0-2'));
+    await tester.ensureVisible(row);
+    final tap = tester.widget<ListTile>(row).onTap!;
+    tap();
+    tap();
+    await tester.pumpAndSettle();
+    expect(
+      find.byType(SurfaceCorrectionDialog, skipOffstage: false),
+      findsOneWidget,
+    );
+  });
+
+  for (final restore in [false, true]) {
+    testWidgets(
+      'pending ${restore ? "Restore" : "Save"} prevents duplicate or conflicting edits',
+      (tester) async {
+        final l = await AppLocalizations.delegate.load(const Locale('en'));
+        final h = ReviewHarness();
+        final segment = SurfaceJournal(h.automatic, const [
+          SurfaceCorrection(startEdgeIndex: 0, endEdgeIndex: 2, surface: grass),
+        ]).effective.segments.first;
+        final gate = Completer<void>();
+        final choices = <CanonicalSurface?>[];
+        await tester.pumpWidget(
+          localized(
+            Builder(
+              builder: (context) => Scaffold(
+                body: FilledButton(
+                  onPressed: () => showDialog<void>(
+                    context: context,
+                    builder: (_) => SurfaceCorrectionDialog(
+                      segment: segment,
+                      number: 1,
+                      save: (surface) async {
+                        choices.add(surface);
+                        await gate.future;
+                      },
+                    ),
+                  ),
+                  child: const Text('Open editor'),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.tap(find.text('Open editor'));
+        await tester.pumpAndSettle();
+        final save = tester
+            .widget<FilledButton>(
+              find.widgetWithText(FilledButton, l.surfaceSave),
+            )
+            .onPressed!;
+        final remove = tester
+            .widget<TextButton>(
+              find.widgetWithText(TextButton, l.surfaceRestoreAutomatic),
+            )
+            .onPressed!;
+        final action = restore ? remove : save;
+        action();
+        action();
+        (restore ? save : remove)();
+        await tester.pump();
+        expect(choices, [restore ? null : grass]);
+        await tester.binding.handlePopRoute();
+        await tester.pump();
+        expect(find.byType(SurfaceCorrectionDialog), findsOneWidget);
+        gate.complete();
+        await tester.pumpAndSettle();
+        expect(find.byType(SurfaceCorrectionDialog), findsNothing);
+        expect(find.text('Open editor'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   for (final locale in ['en', 'uk']) {
     testWidgets(
       '$locale persisted review opens locally; correct, restart and restore',

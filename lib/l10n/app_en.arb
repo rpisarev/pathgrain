@@ -40,6 +40,7 @@
   "interruptedWalk": "Interrupted recording",
   "completedWalk": "Completed walk",
   "routeUnavailable": "There are not enough saved GPS points to draw this route.",
+  "walkRouteLoadFailed": "The saved route could not be loaded. Your walk is unchanged. Try again.",
   "mapLoading": "Loading saved route…",
   "developmentMapNotice": "Development basemap",
   "preciseLocationRecommended": "Precise location is recommended. Approximate location may not produce a usable route.",

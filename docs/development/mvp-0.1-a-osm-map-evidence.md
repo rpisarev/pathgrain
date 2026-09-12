@@ -4,7 +4,7 @@ Status: implemented for development inspection. Focused physical Pixel testing
 of saved-walk analysis is recorded in the subsequent
 [0.1-B matching experiment](mvp-0.1-b-route-surface-matching.md). That investigation
 does not establish comprehensive native-map/cache or Home/screen-lock
-verification. The full MVP 0.1 loop remains unfinished.
+verification. The full MVP 0.1 loop was not complete at 0.1-A.
 
 This development slice makes OSM evidence observable around an already saved
 walk. On its own, 0.1-A does not match a walk to an OSM object or assign a surface;

@@ -40,6 +40,9 @@ class TestLocationRecorder implements LocationRecorder {
     _samples.add(sample);
   }
 
+  void emitError() =>
+      _samples.addError(StateError('Synthetic location failure'));
+
   Future<void> close() => _samples.close();
 
   @override

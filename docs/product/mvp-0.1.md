@@ -1,6 +1,6 @@
 # MVP 0.1 — Surface-aware walk journal
 
-Status: current milestone
+Status: complete and accepted on the Android target for its defined scope
 
 Read-only original-route segmentation, distance breakdown and saved-walk review
 are implemented in [0.1-C](../development/mvp-0.1-c-surface-segments-review.md).
@@ -9,8 +9,14 @@ Local automatic snapshots, reversible segment corrections and explicit
 re-analysis with correction precedence are implemented in
 [0.1-D](../development/mvp-0.1-d-surface-corrections-persistence.md).
 0.1-D has been physically spot-checked on a Pixel using an existing saved walk
-after an in-place upgrade without clearing app data. Final recorder regression
-verification remains pending.
+after an in-place upgrade without clearing app data.
+[0.1-E](../development/mvp-0.1-e-final-integration-acceptance.md) adds final
+integration coverage and narrow shutdown/retry hardening; automated checks and
+the debug APK build passed. Final MVP 0.1 acceptance was then demonstrated on
+one newly recorded physical Pixel walk after an in-place upgrade without
+clearing app data: foreground recording, Home, screen lock/unlock, normal
+Stop/save, explicit surface analysis, correction persistence across restart,
+correction precedence across re-analysis and Restore automatic all passed.
 
 ## Goal
 
@@ -154,21 +160,36 @@ the Android target:
    a physical Android-device walk with Home/screen-lock behavior; record the
    result rather than assuming simulator or automated coverage proves it.
 
-## Unresolved technical decisions
+All criteria above are accepted for the defined Android MVP 0.1 scope, based on
+A–D evidence, E automated verification and the subsequent new-walk physical
+Pixel acceptance recorded in
+[0.1-E](../development/mvp-0.1-e-final-integration-acceptance.md). The final
+physical walk closes the remaining recorder lifecycle/integration acceptance
+item; synthetic lifecycle tests alone did not establish Android background
+delivery. This is not production or Play Store readiness, exhaustive device
+coverage or iOS acceptance.
+
+## Deferred decisions and improvements
 
 Development choices for source/cache access, provisional matching and
 confidence rules, and surface taxonomy are already implemented in
 [0.1-A](../development/mvp-0.1-a-osm-map-evidence.md) and
-[0.1-B](../development/mvp-0.1-b-route-surface-matching.md). The following concern
-remaining integration and final decisions for the complete journal workflow;
-this product specification deliberately does not select them:
+[0.1-B](../development/mvp-0.1-b-route-surface-matching.md). These remain
+provisional beyond the accepted MVP 0.1 scope. The existing 0.1-C
+distance-allocation and display-rounding rules are accepted for this milestone.
+Completion does not establish a final taxonomy, mature correction UX, high
+surface-classification coverage or complete OSM coverage.
+
+The following remain future work, not blockers for MVP 0.1 completion:
 
 - which geographic/OpenStreetMap source and provider to use, including terms,
   attribution, availability, and rate limits;
 - whether source data is downloaded, cached, queried on demand, or made
   available offline, and how any network query minimizes location disclosure;
-- the on-device route-to-geography matching and segmentation algorithm,
+- broader research into on-device route-to-geography matching and segmentation,
   confidence thresholds, and behavior for conflicting source features;
-- the initial user-visible surface taxonomy and its mapping from source tags;
-- final acceptance of the provisional 0.1-C distance-allocation and
-  display-rounding rules used by the surface breakdown.
+- richer barefoot-oriented surface taxonomy and raw OSM surface mapping,
+  including replacing broad OTHER;
+- UX improvements for very many small route segments and map-based
+  correction/segment selection;
+- provider/performance hardening and broader production validation.

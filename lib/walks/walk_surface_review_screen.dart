@@ -52,6 +52,7 @@ class _WalkSurfaceReviewScreenState extends State<WalkSurfaceReviewScreen> {
   EffectiveSurfaceSummary? get _summary => _journal?.effective ?? _preview;
   Future<void>? _loading;
   bool _busy = true;
+  bool _editing = false;
   bool _failed = false;
 
   @override
@@ -102,6 +103,17 @@ class _WalkSurfaceReviewScreenState extends State<WalkSurfaceReviewScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  void _startAnalysis() {
+    // Guard before replacing the tracked future, including taps before rebuild.
+    if (_busy || _editing) return;
+    _loading = _analyze();
+  }
+
+  void _retry() {
+    if (_busy || _editing) return;
+    _loading = _points == null || _localLoadFailed ? _loadPoints() : _analyze();
   }
 
   Future<void> _analyze() async {
@@ -236,10 +248,7 @@ class _WalkSurfaceReviewScreenState extends State<WalkSurfaceReviewScreen> {
                     if (!_busy && (_failed || _localLoadFailed)) ...[
                       Text(l.surfaceReviewFailed),
                       TextButton(
-                        onPressed: () =>
-                            _loading = _points == null || _localLoadFailed
-                            ? _loadPoints()
-                            : _analyze(),
+                        onPressed: _retry,
                         child: Text(l.surfaceRetry),
                       ),
                     ],
@@ -247,7 +256,7 @@ class _WalkSurfaceReviewScreenState extends State<WalkSurfaceReviewScreen> {
                     if (_saveFailed) ...[
                       Text(l.surfaceAnalysisSaveFailed),
                       TextButton(
-                        onPressed: _busy ? null : () => _loading = _analyze(),
+                        onPressed: _busy ? null : _startAnalysis,
                         child: Text(l.surfaceRetry),
                       ),
                     ],
@@ -259,7 +268,7 @@ class _WalkSurfaceReviewScreenState extends State<WalkSurfaceReviewScreen> {
                             : l.surfacePreviousKept,
                       ),
                       TextButton(
-                        onPressed: _busy ? null : () => _loading = _analyze(),
+                        onPressed: _busy ? null : _startAnalysis,
                         child: Text(l.surfaceRetry),
                       ),
                     ],
@@ -273,7 +282,7 @@ class _WalkSurfaceReviewScreenState extends State<WalkSurfaceReviewScreen> {
                         Text(l.surfaceAccessNotice),
                         const SizedBox(height: 12),
                         FilledButton(
-                          onPressed: () => _loading = _analyze(),
+                          onPressed: _startAnalysis,
                           child: Text(
                             _journal == null
                                 ? l.surfaceAnalyze
@@ -400,32 +409,38 @@ class _WalkSurfaceReviewScreenState extends State<WalkSurfaceReviewScreen> {
   }
 
   Future<void> _editSegment(EffectiveSurfaceSegment segment, int number) async {
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => SurfaceCorrectionDialog(
-        segment: segment,
-        number: number,
-        save: (surface) async {
-          final journal = surface == null
-              ? await widget.surfaceRepository.restoreAutomatic(
-                  widget.walk.id,
-                  _points!,
-                  segment.correction!,
-                )
-              : await widget.surfaceRepository.saveCorrection(
-                  widget.walk.id,
-                  _points!,
-                  SurfaceCorrection(
-                    startEdgeIndex: segment.startEdgeIndex,
-                    endEdgeIndex: segment.endEdgeIndex,
-                    surface: surface,
-                  ),
-                );
-          if (mounted) setState(() => _journal = journal);
-        },
-      ),
-    );
+    if (_busy || _editing) return;
+    _editing = true;
+    try {
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => SurfaceCorrectionDialog(
+          segment: segment,
+          number: number,
+          save: (surface) async {
+            final journal = surface == null
+                ? await widget.surfaceRepository.restoreAutomatic(
+                    widget.walk.id,
+                    _points!,
+                    segment.correction!,
+                  )
+                : await widget.surfaceRepository.saveCorrection(
+                    widget.walk.id,
+                    _points!,
+                    SurfaceCorrection(
+                      startEdgeIndex: segment.startEdgeIndex,
+                      endEdgeIndex: segment.endEdgeIndex,
+                      surface: surface,
+                    ),
+                  );
+            if (mounted) setState(() => _journal = journal);
+          },
+        ),
+      );
+    } finally {
+      _editing = false;
+    }
   }
 
   Widget _buildMap(EffectiveSurfaceSummary summary) {

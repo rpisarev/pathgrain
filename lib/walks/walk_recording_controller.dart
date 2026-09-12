@@ -199,11 +199,15 @@ class WalkRecordingController extends ChangeNotifier {
       final completedWalk = await _repository.finishWalk(
         walkId: activeWalk.id,
         endedAt: _now().toUtc(),
-        status: WalkStatus.completed,
+        status: _problem == null
+            ? WalkStatus.completed
+            : WalkStatus.interrupted,
       );
       await _reloadWalks();
       _clearActiveWalk();
-      _phase = WalkRecordingPhase.idle;
+      _phase = _problem == null
+          ? WalkRecordingPhase.idle
+          : WalkRecordingPhase.error;
       notifyListeners();
       return completedWalk;
     } catch (_) {
@@ -230,9 +234,14 @@ class WalkRecordingController extends ChangeNotifier {
       _locationRecorder.openLocationSettings();
 
   void _enqueueSample(LocationSample sample) {
+    // Admit samples while recording, then drain that queue on a normal Stop.
+    // Checking the phase inside the queue would drop samples awaiting SQLite.
+    final activeWalk = _activeWalk;
+    if (_phase != WalkRecordingPhase.recording || activeWalk == null) return;
     _pendingPointWrites = _pendingPointWrites.then((_) async {
-      final activeWalk = _activeWalk;
-      if (_phase != WalkRecordingPhase.recording || activeWalk == null) {
+      if (_activeWalk != activeWalk ||
+          _interrupting ||
+          _problem == WalkRecordingProblem.storageFailed) {
         return;
       }
 
@@ -271,9 +280,11 @@ class WalkRecordingController extends ChangeNotifier {
     WalkRecordingProblem problem, {
     bool waitForPointWrites = true,
   }) async {
-    if (_interrupting || _activeWalk == null) {
-      return;
-    }
+    if (_activeWalk == null) return;
+    // Stop (or an earlier interruption) already owns completion. A pending
+    // write failure must mark that result interrupted, not start a second finish.
+    if (_problem != WalkRecordingProblem.storageFailed) _problem = problem;
+    if (_phase != WalkRecordingPhase.recording || _interrupting) return;
     _interrupting = true;
     _phase = WalkRecordingPhase.stopping;
     notifyListeners();
@@ -285,7 +296,7 @@ class WalkRecordingController extends ChangeNotifier {
       await _pendingPointWrites;
     }
 
-    var finalProblem = problem;
+    var finalProblem = _problem ?? problem;
     final activeWalk = _activeWalk!;
     try {
       await _repository.finishWalk(

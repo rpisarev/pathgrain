@@ -251,6 +251,45 @@ void main() {
     },
   );
 
+  for (final (locale, message) in [
+    (
+      'en',
+      'The saved route could not be loaded. Your walk is unchanged. Try again.',
+    ),
+    (
+      'uk',
+      'Не вдалося завантажити збережений маршрут. Прогулянка не змінилася. Спробуйте ще раз.',
+    ),
+  ]) {
+    testWidgets(
+      '$locale detail point-read failure replaces loading with a local retry',
+      (tester) async {
+        final repository = ReadOnlyWalkRepository()..failRead = true;
+        final l = await AppLocalizations.delegate.load(Locale(locale));
+        await tester.pumpWidget(
+          localized(
+            WalkDetailScreen(walk: savedWalk([]), repository: repository),
+            locale: locale,
+          ),
+        );
+        await tester.pump();
+        expect(find.text(message), findsOneWidget);
+        expect(find.byType(CircularProgressIndicator), findsNothing);
+        expect(find.text(l.surfaceReview), findsOneWidget);
+        repository.failRead = false;
+        final retry = tester
+            .widget<TextButton>(find.widgetWithText(TextButton, l.surfaceRetry))
+            .onPressed!;
+        retry();
+        retry();
+        await tester.pumpAndSettle();
+        expect(repository.reads, 2);
+        expect(find.text(message), findsNothing);
+        expect(find.text(l.routeUnavailable), findsOneWidget);
+      },
+    );
+  }
+
   testWidgets('point-load failure offers retry and no evidence requests', (
     tester,
   ) async {
@@ -542,6 +581,12 @@ class ReadOnlyWalkRepository extends WalkRepository {
           databasePath: inMemoryDatabasePath,
         ),
       );
+  bool failRead = false;
+  int reads = 0;
   @override
-  Future<List<WalkPoint>> pointsForWalk(int walkId) async => [];
+  Future<List<WalkPoint>> pointsForWalk(int walkId) async {
+    reads++;
+    if (failRead) throw StateError('Synthetic local read failure');
+    return [];
+  }
 }

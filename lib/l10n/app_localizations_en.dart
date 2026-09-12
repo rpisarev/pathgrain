@@ -153,6 +153,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'There are not enough saved GPS points to draw this route.';
 
   @override
+  String get walkRouteLoadFailed =>
+      'The saved route could not be loaded. Your walk is unchanged. Try again.';
+
+  @override
   String get mapLoading => 'Loading saved route…';
 
   @override

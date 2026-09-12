@@ -154,6 +154,10 @@ class AppLocalizationsUk extends AppLocalizations {
       'Збережених GPS-точок недостатньо, щоб показати маршрут.';
 
   @override
+  String get walkRouteLoadFailed =>
+      'Не вдалося завантажити збережений маршрут. Прогулянка не змінилася. Спробуйте ще раз.';
+
+  @override
   String get mapLoading => 'Завантаження збереженого маршруту…';
 
   @override

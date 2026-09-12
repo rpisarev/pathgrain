@@ -24,9 +24,24 @@ class WalkDetailScreen extends StatefulWidget {
 }
 
 class _WalkDetailScreenState extends State<WalkDetailScreen> {
-  late final Future<List<WalkPoint>> _points = widget.repository.pointsForWalk(
-    widget.walk.id,
-  );
+  bool _loadingPoints = false;
+  late Future<List<WalkPoint>> _points = _readPoints();
+
+  Future<List<WalkPoint>> _readPoints() async {
+    _loadingPoints = true;
+    try {
+      return await widget.repository.pointsForWalk(widget.walk.id);
+    } finally {
+      _loadingPoints = false;
+    }
+  }
+
+  void _retryPoints() {
+    if (_loadingPoints) return;
+    setState(() {
+      _points = _readPoints();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +89,27 @@ class _WalkDetailScreenState extends State<WalkDetailScreen> {
             child: FutureBuilder<List<WalkPoint>>(
               future: _points,
               builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done &&
+                    snapshot.hasError) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            localizations.walkRouteLoadFailed,
+                            textAlign: TextAlign.center,
+                          ),
+                          TextButton(
+                            onPressed: _retryPoints,
+                            child: Text(localizations.surfaceRetry),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
                 if (!snapshot.hasData) {
                   return Center(
                     child: Column(

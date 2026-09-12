@@ -3,7 +3,7 @@
 Status: completed as a development experiment, with automated verification
 and focused physical Pixel testing of saved-walk analysis. This is not a
 production-readiness claim. The complete MVP 0.1 Record → Analyze surfaces →
-Review → Correct → Save loop remains unfinished.
+Review → Correct → Save loop was not complete at 0.1-B.
 
 ## Scope and architecture
 

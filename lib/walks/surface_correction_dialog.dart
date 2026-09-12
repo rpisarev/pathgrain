@@ -27,6 +27,7 @@ class _SurfaceCorrectionDialogState extends State<SurfaceCorrectionDialog> {
   bool _failed = false;
 
   Future<void> _save(CanonicalSurface? surface) async {
+    if (_saving) return;
     setState(() {
       _saving = true;
       _failed = false;
