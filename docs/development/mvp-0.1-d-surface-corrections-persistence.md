@@ -1,5 +1,14 @@
 # MVP 0.1-D — Surface corrections and local persistence
 
+> **Later-status / document role**
+>
+> Historical completion note (0.1-D). Schema 2 and the original taxonomy below
+> describe D's implementation. [F](mvp-0.1-f-barefoot-surface-taxonomy.md) subsequently
+> migrated to schema 3 and the current 15 categories. E completed a new physical
+> Android walk through the loop; F separately spot-checked its upgrade. The
+> [current pipeline reference](../reference/surface-pipeline.md) owns present schema
+> and journal behavior; [0.2-A](mvp-0.2-a-surface-diagnostics-replay.md) adds replay.
+
 Status: implemented and physically spot-checked on a Pixel using an existing
 saved walk. Automated verification and focused physical acceptance are recorded
 below. This is not exhaustive production validation or final MVP 0.1 acceptance.

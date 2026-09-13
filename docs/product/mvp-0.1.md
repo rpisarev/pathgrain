@@ -18,6 +18,12 @@ clearing app data: foreground recording, Home, screen lock/unlock, normal
 Stop/save, explicit surface analysis, correction persistence across restart,
 correction precedence across re-analysis and Restore automatic all passed.
 
+Later status: A–F are complete. The current diagnostics/replay slice is
+[MVP 0.2-A](mvp-0.2-a.md); this document preserves the completed 0.1 scope and
+acceptance. The later all-unknown walk-8 field finding exposes source/matcher
+coverage limitations without invalidating recorder/storage acceptance. Current
+schema/pipeline details are in the [reference](../reference/surface-pipeline.md).
+
 ## Goal
 
 Turn the existing Prototype 0.0 walk recorder into a surface-aware barefoot
@@ -174,7 +180,8 @@ coverage or iOS acceptance.
 Development choices for source/cache access, provisional matching and
 confidence rules, and surface taxonomy are already implemented in
 [0.1-A](../development/mvp-0.1-a-osm-map-evidence.md) and
-[0.1-B](../development/mvp-0.1-b-route-surface-matching.md). These remain
+[0.1-B](../development/mvp-0.1-b-route-surface-matching.md), with the current
+taxonomy in [0.1-F](../development/mvp-0.1-f-barefoot-surface-taxonomy.md). These remain
 provisional beyond the accepted MVP 0.1 scope. The existing 0.1-C
 distance-allocation and display-rounding rules are accepted for this milestone.
 Completion does not establish a final taxonomy, mature correction UX, high
@@ -187,10 +194,10 @@ in-place upgrade verification is recorded there.
 
 The following remain future work, not blockers for MVP 0.1 completion:
 
-- which geographic/OpenStreetMap source and provider to use, including terms,
-  attribution, availability, and rate limits;
-- whether source data is downloaded, cached, queried on demand, or made
-  available offline, and how any network query minimizes location disclosure;
+- production reevaluation of the implemented provisional Overpass provider,
+  including terms, attribution, availability and rate limits;
+- freshness/eviction and broader offline delivery beyond the implemented
+  fixed-cell, read-cache-first, fetch-missing architecture;
 - broader research into on-device route-to-geography matching and segmentation,
   confidence thresholds, and behavior for conflicting source features;
 - further barefoot taxonomy and raw OSM mapping refinements after 0.1-F;

@@ -1,3 +1,4 @@
+import 'evidence_assembly.dart';
 import 'evidence_cache.dart';
 import 'geographic_cell.dart';
 import 'osm_evidence.dart';
@@ -45,11 +46,12 @@ class EvidenceSnapshot {
   final EvidenceFailure? failure;
 
   /// The same conservative all-cell gate for both review and debug analysis.
-  bool get hasCompleteCoverage =>
-      !isLoading &&
-      totalCells > 0 &&
-      availableCells == totalCells &&
-      unparsedElements == 0;
+  bool get hasCompleteCoverage => evidenceCoverageIsComplete(
+    isLoading: isLoading,
+    totalCells: totalCells,
+    availableCells: availableCells,
+    unparsedElements: unparsedElements,
+  );
 
   bool get isLoading => switch (phase) {
     EvidencePhase.loaded ||
@@ -90,23 +92,7 @@ class EvidenceRepository {
     EvidenceFailure? failure;
 
     EvidenceSnapshot snapshot(EvidencePhase phase) {
-      // Newest fetched cell wins for overlapping snapshots of the same OSM
-      // element; cell order breaks equal-time ties deterministically.
-      final orderedEntries = entries.entries.toList()
-        ..sort((a, b) {
-          final order = a.value.fetchedAt.compareTo(b.value.fetchedAt);
-          return order != 0 ? order : a.key.compareTo(b.key);
-        });
-      final features = <String, OsmFeature>{};
-      var unparsed = 0;
-      for (final entry in orderedEntries) {
-        for (final feature in entry.value.evidence.features) {
-          features[feature.key] = feature;
-        }
-        unparsed += entry.value.evidence.unparsedElements;
-      }
-      final sortedFeatures = features.values.toList()
-        ..sort((a, b) => a.key.compareTo(b.key));
+      final assembly = EvidenceAssembly(entries);
       return EvidenceSnapshot(
         phase: phase,
         totalCells: cells.length,
@@ -115,10 +101,10 @@ class EvidenceRepository {
         fetchedCells: fetched.length,
         failedCells: failed,
         cacheFailures: cacheFailures,
-        features: List.unmodifiable(sortedFeatures),
-        unparsedElements: unparsed,
-        oldestFetchedAt: orderedEntries.firstOrNull?.value.fetchedAt,
-        newestFetchedAt: orderedEntries.lastOrNull?.value.fetchedAt,
+        features: assembly.features,
+        unparsedElements: assembly.unparsedElements,
+        oldestFetchedAt: assembly.oldestFetchedAt,
+        newestFetchedAt: assembly.newestFetchedAt,
         failure: failure,
       );
     }

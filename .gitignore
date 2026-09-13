@@ -135,3 +135,10 @@ coverage/
 # google-services.json
 # GoogleService-Info.plist
 AGENTS_old.md
+
+# Private physical-device captures and local replay exports (never fixtures).
+/captures/
+/diagnostics/
+
+# Local Python capture-adapter bytecode
+__pycache__/

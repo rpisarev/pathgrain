@@ -1,7 +1,10 @@
 # Prototype 0.0: Android walk recording foundation
 
-Status: implemented foundation with physical-device verification still noted
-below
+Status at Prototype 0.0 completion: implemented foundation; physical-device
+verification was still pending. Later Home/screen-lock acceptance is recorded in
+[0.1-E](mvp-0.1-e-final-integration-acceptance.md#final-physical-pixel-acceptance).
+This historical note does not override that completed Pixel acceptance. See the
+[current recorder/schema reference](../reference/surface-pipeline.md).
 
 This is the implementation note for Prototype 0.0, the deliberately small
 Android-first recorder built for the original 10-minute walk vertical slice. It
@@ -9,8 +12,8 @@ documents the foundation that later milestones extend; it is not the current
 milestone specification and is not a general background-location architecture.
 
 The current milestone is defined in
-[MVP 0.1](../product/mvp-0.1.md). MVP 0.1 must build on this recorder rather than
-reimplement it.
+[MVP 0.2-A](../product/mvp-0.2-a.md). The completed MVP 0.1 extended this recorder;
+later work must preserve that foundation.
 
 ## What the foundation does during a walk
 
@@ -50,11 +53,11 @@ This implementation is intended to continue after Home and screen lock, but it
 does not promise survival after force-stop, app process termination, device
 vendor battery killing, or reboot. Those cases were outside Prototype 0.0.
 
-The repository does not record a completed physical-device verification of the
-Home/screen-lock behavior. That behavior still needs an actual-device test; a
-simulator and automated tests cannot establish it. Later milestone reports must
-state the observed result rather than treating the implementation intent as
-proof.
+At Prototype 0.0 completion, the repository did not record a completed
+physical-device Home/screen-lock test. That original gap was closed for the
+initial Android cycle by E's new Pixel walk, linked above. Simulators and
+automated tests alone still cannot establish vendor/device background behavior;
+later acceptance records must state what was actually observed.
 
 ## Basemap boundary
 

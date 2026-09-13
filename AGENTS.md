@@ -23,12 +23,20 @@ made explicit.
 The implementation and verification boundary of this foundation is documented
 in [docs/development/android-walk-recording.md](docs/development/android-walk-recording.md).
 
-### Current target: MVP 0.1
+### Completed MVP 0.1; current slice MVP 0.2-A
 
-The current target is MVP 0.1: turn the existing recorder into a surface-aware
-barefoot walk journal. The milestone scope, acceptance criteria, non-goals, and
-open technical decisions are defined in
-[docs/product/mvp-0.1.md](docs/product/mvp-0.1.md).
+MVP 0.1 and slices 0.1-A through 0.1-F are complete. The initial local Android
+Record → Analyze surfaces → Review → Correct → Save cycle was physically
+accepted on a Pixel, including Home and screen lock; F separately records its
+taxonomy upgrade spot-check. See [the completed specification](docs/product/mvp-0.1.md)
+and its E/F acceptance links. This does not imply exhaustive device or iOS acceptance.
+
+[MVP 0.2-A](docs/product/mvp-0.2-a.md) adds real-world diagnostics and deterministic
+offline replay, with documentation reconciliation. The all-unknown walk-8 field
+result exposes surface-coverage limitations, not a failed recorder/storage loop.
+This slice must preserve matching/classification policy. The
+[current pipeline reference](docs/reference/surface-pipeline.md) describes the
+implemented architecture and schema.
 
 The broader direction in [docs/product/vision.md](docs/product/vision.md) is not
 current implementation scope. Accepted product choices are recorded in
@@ -40,8 +48,15 @@ current implementation scope. Accepted product choices are recorded in
   rules for contributors and agents.
 - `docs/product/vision.md` describes possible long-term product direction. It
   does not authorize implementation.
-- `docs/product/mvp-0.1.md` defines the current milestone and its acceptance
-  criteria.
+- `README.md` owns the current project overview and developer entry points.
+- `docs/product/mvp-0.2-a.md` defines the current slice and acceptance criteria.
+- `docs/product/mvp-0.1.md` preserves the completed Android milestone scope.
+- `docs/reference/surface-pipeline.md` is the current architecture/schema reference.
+- `docs/development/mvp-0.2-a-surface-diagnostics-replay.md` owns replay usage,
+  export contracts, the field finding and the 0.2-A validation record.
+- A–F development notes preserve implementation/acceptance history. F also owns
+  the current complete taxonomy/migration reference; later changes must update
+  or explicitly supersede that reference rather than create conflicting lists.
 - `docs/product/decisions.md` records accepted product decisions that remain in
   force until explicitly superseded.
 - `docs/development/android-walk-recording.md` explains the Prototype 0.0
@@ -55,7 +70,7 @@ current implementation scope. Accepted product choices are recorded in
 - SQLite is the local source of truth for walks
 - MapLibre is the preferred map renderer
 - Supabase/PostGIS may be considered later for minimized community data, but is
-  not part of MVP 0.1
+  not part of MVP 0.1 or 0.2-A
 
 Do not introduce Supabase, a custom backend, authentication, cloud sync,
 analytics, or community features unless explicitly requested by a later
@@ -75,6 +90,11 @@ These rules are architectural requirements.
 - Community data, if introduced later, must be explicitly minimized before
   leaving the device.
 - Prefer privacy by architecture rather than privacy by policy.
+- Keep `captures/` and local `diagnostics/` exports untracked. Do not copy raw
+  field tracks, logs, screenshots or database history into tracked fixtures.
+  Prefer synthetic regressions plus explicit local private-capture replay.
+  Moving/rotating a real track is not sufficient anonymization. Diagnostic
+  reports can reveal location through OSM IDs even without point coordinates.
 
 ## Development philosophy
 
@@ -171,9 +191,10 @@ The existing recorder models and locally persists a walk identifier, start and
 end times, ordered GPS points with timestamps, calculated distance and duration,
 and completion status. Preserve this local foundation.
 
-MVP 0.1 may add only the local surface-analysis and correction data needed by
-its specification. Do not add hazards, community data, accounts, social
-features, or cloud synchronization as part of MVP 0.1.
+The completed MVP 0.1 adds local automatic snapshots and durable corrections.
+MVP 0.2-A adds opt-in replay/export diagnostics, without expanding the normal
+walk schema or changing classification. Hazards, community data, accounts,
+social features and cloud synchronization remain outside this slice.
 
 ## Definition of progress
 
@@ -181,13 +202,14 @@ Prefer a working end-to-end slice over many partially implemented layers.
 
 The original 10-minute recorder goal belongs to Prototype 0.0. Its
 implementation is the starting point, not the current milestone to rebuild.
-Maintain and regression-test it as MVP 0.1 is added, including physical Android
-device testing where required.
+Maintain and regression-test this foundation while extending the local journal.
 
-Measure current milestone progress against the concrete acceptance criteria in
-`docs/product/mvp-0.1.md`. MVP 0.1 is not complete merely because recording
-still works or because a surface data layer exists in isolation; the complete
-Record → Analyze surfaces → Review → Correct → Save loop must work.
+Measure this slice against `docs/product/mvp-0.2-a.md`: deterministic production
+replay, explainable loss of surface evidence, correct accounting, privacy-safe
+regression coverage and reconciled documentation. Passing tests demonstrates
+behavior, not that the provisional matching policy is calibrated for real walks.
+Future policy changes must identify a new diagnostic policy version and compare
+field outcomes, including incorrect known assignments and legitimate unknowns.
 
 ## Quality expectations
 

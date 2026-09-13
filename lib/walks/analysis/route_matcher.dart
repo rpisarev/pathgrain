@@ -5,6 +5,7 @@ import '../../map/evidence/osm_evidence.dart';
 import '../walk_models.dart';
 import 'analysis_settings.dart';
 import 'gps_confidence.dart';
+import 'match_audit.dart';
 import 'route_analysis.dart';
 import 'route_geometry.dart';
 import 'surface_rules.dart';
@@ -26,6 +27,7 @@ abstract final class RouteMatcher {
     List<WalkPoint> points,
     List<OsmFeature> features, {
     bool evidenceComplete = true,
+    void Function(SampleMatchAudit)? onAudit,
   }) {
     final gps = GpsConfidence.assess(points);
     // Retained OSM IDs establish membership, including parents whose geometry
@@ -45,8 +47,13 @@ abstract final class RouteMatcher {
       }
     }
     final candidates = <List<MatchCandidate>>[];
+    final headings = onAudit == null ? null : <double?>[];
+    final independentAudits = onAudit == null
+        ? null
+        : List<MatchChoiceAudit?>.filled(points.length, null);
     for (var i = 0; i < points.length; i++) {
       final heading = _heading(points, gps.edges, i);
+      headings?.add(heading);
       candidates.add(
         [
           if (RouteGeometry.valid(points[i]))
@@ -66,6 +73,9 @@ abstract final class RouteMatcher {
                 candidates[i],
                 points[i],
                 crossingWays,
+                onAudit: independentAudits == null
+                    ? null
+                    : (audit) => independentAudits[i] = audit,
               ).candidate?.feature.key
             : null,
     ];
@@ -94,12 +104,27 @@ abstract final class RouteMatcher {
               )
               .toList()
             ..sort(_compare);
+      MatchChoiceAudit? contextualAudit;
       final choice = _choose(
         scored,
         points[i],
         crossingWays,
         supportedKey: previous != null && previous == next ? previous : null,
+        onAudit: onAudit == null ? null : (audit) => contextualAudit = audit,
       );
+      if (onAudit != null) {
+        onAudit(
+          SampleMatchAudit(
+            index: i,
+            headingDegrees: headings![i],
+            matchRadiusMeters: _radius(points[i]),
+            independent: independentAudits![i],
+            contextual: contextualAudit!,
+            previousAnchor: previous,
+            nextAnchor: next,
+          ),
+        );
+      }
       var reason = choice.reason;
       MatchCandidate? selected = choice.candidate;
       if (!gps.samples[i].isStable) {
@@ -446,22 +471,51 @@ abstract final class RouteMatcher {
     WalkPoint p,
     Map<int, Set<String>> crossingWays, {
     String? supportedKey,
+    void Function(MatchChoiceAudit)? onAudit,
   }) {
     final eligible = candidates.where((c) => c.eligible).toList();
+    final parallelRivals = <String>[];
+    final unsupportedRivals = <String>[];
+    var ambiguityEvaluated = false;
+    ({MatchCandidate? candidate, AnalysisReason reason}) finish(
+      MatchCandidate? candidate,
+      AnalysisReason reason,
+      List<MatchGate> gates,
+    ) {
+      onAudit?.call(
+        MatchChoiceAudit(
+          reason: reason,
+          leaderKey: eligible.firstOrNull?.feature.key,
+          leaderScore: eligible.firstOrNull?.score,
+          runnerUpScore: eligible.length < 2 ? null : eligible[1].score,
+          selectedKey: candidate?.feature.key,
+          ambiguityEvaluated: ambiguityEvaluated,
+          supportedKey: supportedKey,
+          gates: gates,
+          parallelRivals: parallelRivals,
+          unsupportedRivals: unsupportedRivals,
+        ),
+      );
+      return (candidate: candidate, reason: reason);
+    }
+
     if (eligible.isEmpty) {
-      return (candidate: null, reason: AnalysisReason.noCandidate);
+      return finish(null, AnalysisReason.noCandidate, [
+        MatchGate.noEligibleCandidate,
+      ]);
     }
     final first = eligible.first;
     if (first.score < AnalysisSettings.minimumScore) {
-      return (candidate: null, reason: AnalysisReason.weakScore);
+      return finish(null, AnalysisReason.weakScore, [MatchGate.minimumScore]);
     }
     final uncertainty = math.max(
       p.accuracyMeters.isFinite ? p.accuracyMeters : 0.0,
       AnalysisSettings.minimumAmbiguityMeters,
     );
+    ambiguityEvaluated = true;
     final ambiguous = eligible
         .skip(1)
-        .any(
+        .where(
           (other) =>
               (first.distanceMeters - other.distanceMeters).abs() <=
                   uncertainty &&
@@ -470,26 +524,35 @@ abstract final class RouteMatcher {
                   (first.directionDegrees! - other.directionDegrees!).abs() <=
                       AnalysisSettings.parallelDirectionDegrees) &&
               !_footwayOutweighsRoad(first, other),
-        );
+        )
+        .toList();
+    parallelRivals.addAll(ambiguous.map((c) => c.feature.key));
     // Unsupported pedestrian geometry and area edges in the accuracy envelope
     // are unresolved rivals, even though they cannot win a match themselves.
-    if (candidates.any(
-      (c) =>
-          (c.reason == AnalysisReason.areaBoundary ||
-              (c.reason == AnalysisReason.unsupportedGeometry &&
-                  c.pedestrianScore > 0)) &&
-          c.distanceMeters <= uncertainty &&
-          // Waiving the node must not rely on context to resolve geometry.
-          (ambiguous ||
-              !_redundantCrossingNode(c, first, candidates, crossingWays)),
-    )) {
-      return (candidate: null, reason: AnalysisReason.ambiguousCandidates);
+    final unresolved = candidates
+        .where(
+          (c) =>
+              (c.reason == AnalysisReason.areaBoundary ||
+                  (c.reason == AnalysisReason.unsupportedGeometry &&
+                      c.pedestrianScore > 0)) &&
+              c.distanceMeters <= uncertainty &&
+              // Waiving the node must not rely on context to resolve geometry.
+              (ambiguous.isNotEmpty ||
+                  !_redundantCrossingNode(c, first, candidates, crossingWays)),
+        )
+        .toList();
+    unsupportedRivals.addAll(unresolved.map((c) => c.feature.key));
+    final gates = <MatchGate>[
+      if (unresolved.isNotEmpty) MatchGate.unsupportedRival,
+      if (_margin(candidates) < AnalysisSettings.minimumMargin)
+        MatchGate.scoreMargin,
+      if (ambiguous.isNotEmpty && supportedKey != first.feature.key)
+        MatchGate.parallelAmbiguity,
+    ];
+    if (gates.isNotEmpty) {
+      return finish(null, AnalysisReason.ambiguousCandidates, gates);
     }
-    if (_margin(candidates) < AnalysisSettings.minimumMargin ||
-        (ambiguous && supportedKey != first.feature.key)) {
-      return (candidate: null, reason: AnalysisReason.ambiguousCandidates);
-    }
-    return (candidate: first, reason: AnalysisReason.matched);
+    return finish(first, AnalysisReason.matched, const []);
   }
 
   static bool _edgeOnFeature(SampleAnalysis a, SampleAnalysis b) {

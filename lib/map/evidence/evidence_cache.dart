@@ -3,15 +3,12 @@ import 'dart:convert';
 import 'package:path/path.dart' as path;
 import 'package:sqflite/sqflite.dart';
 
+import 'evidence_assembly.dart';
 import 'geographic_cell.dart';
+
 import 'osm_evidence.dart';
 
-class CachedEvidence {
-  const CachedEvidence({required this.evidence, required this.fetchedAt});
-
-  final OsmEvidence evidence;
-  final DateTime fetchedAt;
-}
+export 'evidence_assembly.dart' show CachedEvidence;
 
 abstract interface class EvidenceCache {
   Future<CachedEvidence?> read(String namespace, GeographicCell cell);

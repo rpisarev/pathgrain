@@ -1,5 +1,15 @@
 # MVP 0.1-B — Route and surface matching experiment
 
+> **Later-status / document role**
+>
+> Historical completion/field-fix note (0.1-B). Later status: C/D added normal
+> review and durable automatic/corrected journals; E/F completed their Android
+> acceptance. The old taxonomy descriptions below are historical; use
+> [F's current mapping](mvp-0.1-f-barefoot-surface-taxonomy.md) and the
+> [current pipeline](../reference/surface-pipeline.md). 0.2-A adds
+> [diagnostics/replay](mvp-0.2-a-surface-diagnostics-replay.md), preserving B's
+> final scoring, geometry and exception policy.
+
 Status: completed as a development experiment, with automated verification
 and focused physical Pixel testing of saved-walk analysis. This is not a
 production-readiness claim. The complete MVP 0.1 Record → Analyze surfaces →

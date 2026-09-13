@@ -1,5 +1,14 @@
 # MVP 0.1-F — Barefoot surface taxonomy V1
 
+> **Later-status / document role**
+>
+> Later status (0.2-A): the taxonomy/migration tables in this note remain the
+> current complete reference. Implementation and acceptance sections retain their
+> historical scope. The later [walk-8 field analysis and replay work](mvp-0.2-a-surface-diagnostics-replay.md)
+> found all eight nearby tagged features mapped successfully; diagnostics were
+> added without taxonomy or matcher-policy changes. See the
+> [current pipeline/schema reference](../reference/surface-pipeline.md).
+
 Status: complete and physically spot-checked on a Pixel for its defined scope.
 
 ## Purpose and scope

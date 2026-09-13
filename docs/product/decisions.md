@@ -2,7 +2,7 @@
 
 This document records accepted product decisions. Long-term decisions do not
 place a feature into the current milestone; current scope is defined by
-[MVP 0.1](mvp-0.1.md).
+[MVP 0.2-A](mvp-0.2-a.md).
 
 ## D001 — Do not expose live user locations
 

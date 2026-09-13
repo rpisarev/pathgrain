@@ -1,5 +1,14 @@
 # MVP 0.1-C — Surface segments and read-only walk review
 
+> **Later-status / document role**
+>
+> Historical completion note (0.1-C). “Read-only”, “in-memory” and deferred
+> persistence/correction statements below describe this slice. D subsequently
+> added durable automatic snapshots, journals and corrections; E completed the
+> new-walk Android loop; F introduced the current taxonomy and schema 3. See the
+> [current pipeline](../reference/surface-pipeline.md) and
+> [0.2-A field/replay guide](mvp-0.2-a-surface-diagnostics-replay.md).
+
 Status: implemented; automated verification and focused physical Pixel review
 observations are recorded below. This was not exhaustive production validation.
 The complete MVP 0.1 correction/save loop was not complete at 0.1-C.

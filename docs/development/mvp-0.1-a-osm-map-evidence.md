@@ -1,5 +1,15 @@
 # MVP 0.1-A — OSM map evidence
 
+> **Later-status / document role**
+>
+> Historical completion note (0.1-A). Later status: B added matching, C added
+> segments/review, D added durable snapshots/corrections, E completed the new-walk
+> Android acceptance, and F expanded taxonomy/schema. The deferred features below
+> describe A's boundary; analysis after Stop is still intentionally not automatic.
+> The provisional provider/cache now also serve explicit normal Surface Review.
+> See the [current pipeline](../reference/surface-pipeline.md) and
+> [0.2-A replay guide](mvp-0.2-a-surface-diagnostics-replay.md).
+
 Status: implemented for development inspection. Focused physical Pixel testing
 of saved-walk analysis is recorded in the subsequent
 [0.1-B matching experiment](mvp-0.1-b-route-surface-matching.md). That investigation

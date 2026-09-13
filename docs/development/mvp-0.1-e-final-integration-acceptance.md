@@ -1,5 +1,15 @@
 # MVP 0.1-E — Final integration and Android acceptance
 
+> **Later-status / document role**
+>
+> Historical integration/acceptance record (0.1-E). The schema-2 statements and
+> test counts below describe E's completion. [F](mvp-0.1-f-barefoot-surface-taxonomy.md)
+> later supplied schema 3, the expanded taxonomy and its own physical upgrade
+> spot-check. E's new-walk Home/lock acceptance remains valid evidence. See the
+> [current pipeline](../reference/surface-pipeline.md) and the later
+> [walk-8 diagnostics](mvp-0.2-a-surface-diagnostics-replay.md); zero known surfaces
+> on that walk do not imply recorder/storage failure.
+
 Status: complete; final physical Pixel acceptance passed on a newly recorded
 walk after automated verification.
 

@@ -7,7 +7,7 @@ problems and ideas that may shape later milestones; it is not a specification
 of what is implemented now or authorization to build all of these features.
 
 The current implementation scope is defined separately in
-[MVP 0.1](mvp-0.1.md).
+[MVP 0.2-A](mvp-0.2-a.md).
 
 ## Product idea
 
