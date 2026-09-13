@@ -21,7 +21,7 @@ import 'walk_surface_review_screen_test.dart' show localized, savedWalk;
 const asphalt = CanonicalSurface.asphalt;
 const unknown = CanonicalSurface.unknown;
 const grass = CanonicalSurface.grass;
-const paving = CanonicalSurface.pavingStones;
+const paving = CanonicalSurface.tile;
 
 class ReviewHarness {
   ReviewHarness({bool saved = true, this.locale = 'en'}) {
@@ -78,9 +78,25 @@ Future<void> choose(
   AppLocalizations l,
   CanonicalSurface surface,
 ) async {
+  final selected = tester
+      .widget<DropdownButton<CanonicalSurface>>(
+        find.byType(DropdownButton<CanonicalSurface>),
+      )
+      .value!;
   await tester.tap(find.byKey(const ValueKey('surface-chooser')));
   await tester.pumpAndSettle();
-  await tester.tap(find.text(l.analysisSurface(surface.name)).last);
+  final menu = find.byType(ListView).last;
+  final option = find.descendant(
+    of: menu,
+    matching: find.text(l.analysisSurface(surface.name)),
+  );
+  await tester.scrollUntilVisible(
+    option,
+    surface.index < selected.index ? -120 : 120,
+    scrollable: find.descendant(of: menu, matching: find.byType(Scrollable)),
+  );
+  await tester.pumpAndSettle();
+  await tester.tap(option);
   await tester.pumpAndSettle();
 }
 

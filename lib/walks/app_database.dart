@@ -11,7 +11,7 @@ class AppDatabase {
 
   AppDatabase._(this._databaseFactory, this._databasePath);
 
-  static const int schemaVersion = 2;
+  static const int schemaVersion = 3;
   static const String fileName = 'pathgrain.sqlite';
 
   final DatabaseFactory _databaseFactory;
@@ -39,6 +39,7 @@ class AppDatabase {
         onCreate: _createSchema,
         onUpgrade: (database, oldVersion, newVersion) async {
           if (oldVersion < 2) await _createSurfaceSchema(database);
+          if (oldVersion < 3) await _migrateBarefootTaxonomy(database);
         },
       ),
     );
@@ -85,6 +86,25 @@ class AppDatabase {
       ON walk_points (walk_id, sequence)
     ''');
     await _createSurfaceSchema(database);
+  }
+
+  /// sqflite runs the upgrade callback in one transaction. Durable v2 rows
+  /// contain no raw surface tags or correction locale: these three labels
+  /// cannot be split honestly. Never consult the disposable OSM cache here.
+  static Future<void> _migrateBarefootTaxonomy(Database database) async {
+    await database.execute('''
+      UPDATE walk_surface_segments
+      SET surface = 'unknown', assignment = 'unknown',
+          surface_reason = 'legacySurfaceAmbiguous'
+      WHERE surface IN ('pavingStones', 'gravel', 'other')
+    ''');
+    // Keep the observation and its immutable range, even if both layers now
+    // say UNKNOWN. Only an explicit Save/Restore can remove that precedence.
+    await database.execute('''
+      UPDATE walk_surface_corrections
+      SET surface = 'unknown'
+      WHERE surface IN ('pavingStones', 'gravel', 'other')
+    ''');
   }
 
   static Future<void> _createSurfaceSchema(Database database) async {

@@ -9,7 +9,7 @@ import 'support/surface_fixtures.dart';
 
 const grass = CanonicalSurface.grass;
 const asphalt = CanonicalSurface.asphalt;
-const paving = CanonicalSurface.pavingStones;
+const paving = CanonicalSurface.tile;
 const unknown = CanonicalSurface.unknown;
 
 AutomaticSurfaceSnapshot automatic(List<CanonicalSurface> surfaces) =>

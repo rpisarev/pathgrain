@@ -94,7 +94,7 @@ void main() {
         summary.distanceBySurface.keys,
         containsAll([
           CanonicalSurface.asphalt,
-          CanonicalSurface.pavingStones,
+          CanonicalSurface.tile,
           CanonicalSurface.grass,
           CanonicalSurface.unknown,
         ]),

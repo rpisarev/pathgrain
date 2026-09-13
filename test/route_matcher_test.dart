@@ -210,7 +210,7 @@ void main() {
       null,
       'paved',
       'unpaved',
-      'compacted',
+      'gravel',
       'concrete:lanes',
       'asphalt;grass',
       'invented',

@@ -21,7 +21,7 @@ const asphalt = CanonicalSurface.asphalt;
 const concrete = CanonicalSurface.concrete;
 const unknown = CanonicalSurface.unknown;
 const grass = CanonicalSurface.grass;
-const paving = CanonicalSurface.pavingStones;
+const paving = CanonicalSurface.tile;
 const observation = SurfaceCorrection(
   startEdgeIndex: 2,
   endEdgeIndex: 5,
@@ -98,7 +98,7 @@ void main() {
         await dir.delete(recursive: true);
       });
       final upgraded = await app.database;
-      expect(await upgraded.getVersion(), 2);
+      expect(await upgraded.getVersion(), 3);
       expect(await upgraded.query('walks', orderBy: 'id'), walksBefore);
       expect(await upgraded.query('walk_points', orderBy: 'id'), pointsBefore);
       expect(await upgraded.rawQuery('PRAGMA foreign_key_check'), isEmpty);
@@ -179,6 +179,146 @@ void main() {
         repository.saveAnalysis(walk.id, initial, evidenceComplete: true);
     Future<SurfaceJournal> load() async =>
         (await repository.load(walk.id, points))!;
+
+    for (final surface in CanonicalSurface.values) {
+      test(
+        'v3 $surface correction, re-analysis, restore and automatic equality survive SQLite reopen',
+        () async {
+          final db = await app.database;
+          expect(await db.getVersion(), 3);
+          final originalWalks = await db.query('walks');
+          final originalPoints = await db.query('walk_points');
+          final alternatives = CanonicalSurface.values
+              .where((s) => s != surface)
+              .take(2)
+              .toList();
+          WalkSurfaceSummary summary(
+            List<CanonicalSurface> labels, {
+            List<AnalysisReason>? reasons,
+          }) => WalkSurfaceSummary.fromAnalysis(
+            surfaceAnalysis(labels, points: points, reasons: reasons),
+          );
+          await repository.saveAnalysis(
+            walk.id,
+            summary(List.filled(points.length - 1, alternatives.first)),
+            evidenceComplete: true,
+          );
+          final selected = SurfaceCorrection(
+            startEdgeIndex: 2,
+            endEdgeIndex: 5,
+            surface: surface,
+          );
+          final saved = await repository.saveCorrection(
+            walk.id,
+            points,
+            selected,
+          );
+          expect(saved.corrections.single.surface, surface);
+          final savedMap = SurfaceRouteGeoJson.build(saved.effective);
+          await app.close();
+          app = AppDatabase(
+            databaseFactory: databaseFactoryFfi,
+            databasePath: file,
+          );
+          walks = WalkRepository(app);
+          repository = walks.surfaces;
+          points = await walks.pointsForWalk(walk.id);
+          expect(SurfaceRouteGeoJson.build((await load()).effective), savedMap);
+          expect(
+            (await (await app.database).query('walk_surface_corrections'))
+                .single['surface'],
+            surface.name,
+          );
+
+          final replacement = summary(
+            List.generate(points.length - 1, (i) => alternatives[i % 2]),
+          );
+          final reanalyzed = await repository.saveAnalysis(
+            walk.id,
+            replacement,
+            evidenceComplete: true,
+          );
+          expect(reanalyzed.corrections.single.sameRange(selected), isTrue);
+          expect(reanalyzed.corrections.single.surface, surface);
+          final effective = reanalyzed.effective.segments.singleWhere(
+            (s) => s.isCorrected,
+          );
+          expect(
+            (
+              effective.startEdgeIndex,
+              effective.endEdgeIndex,
+              effective.surface,
+            ),
+            (2, 5, surface),
+          );
+          expect(
+            reanalyzed.effective.reconcilesWith(walk.distanceMeters),
+            isTrue,
+          );
+          final restored = await repository.restoreAutomatic(
+            walk.id,
+            points,
+            selected,
+          );
+          expect(restored.corrections, isEmpty);
+          expect(
+            restored.effective.distanceBySurface,
+            replacement.distanceBySurface,
+          );
+
+          await repository.saveCorrection(walk.id, points, selected);
+          final sameAcrossBoundaries = summary(
+            List.filled(points.length - 1, surface),
+            reasons: List.generate(
+              points.length - 1,
+              (i) => i.isEven
+                  ? AnalysisReason.matched
+                  : AnalysisReason.continuitySupported,
+            ),
+          );
+          final same = await repository.saveAnalysis(
+            walk.id,
+            sameAcrossBoundaries,
+            evidenceComplete: true,
+          );
+          expect(same.automatic.segments, hasLength(points.length - 1));
+          expect(same.corrections.single.surface, surface);
+          final redundant = await repository.saveCorrection(
+            walk.id,
+            points,
+            selected,
+          );
+          expect(redundant.corrections, isEmpty);
+          expect(
+            redundant.effective.reconcilesWith(walk.distanceMeters),
+            isTrue,
+          );
+          final automaticMap = SurfaceRouteGeoJson.build(redundant.effective);
+          await app.close();
+          app = AppDatabase(
+            databaseFactory: databaseFactoryFfi,
+            databasePath: file,
+          );
+          walks = WalkRepository(app);
+          repository = walks.surfaces;
+          points = await walks.pointsForWalk(walk.id);
+          final reopened = await load();
+          expect(reopened.corrections, isEmpty);
+          expect(
+            reopened.automatic.segments.every(
+              (s) => s.surface.surface == surface,
+            ),
+            isTrue,
+          );
+          expect(SurfaceRouteGeoJson.build(reopened.effective), automaticMap);
+          final current = await app.database;
+          expect(await current.query('walks'), originalWalks);
+          expect(await current.query('walk_points'), originalPoints);
+          expect(await current.query('walk_surface_corrections'), isEmpty);
+          expect(await current.rawQuery('PRAGMA foreign_key_check'), isEmpty);
+        },
+      );
+    }
 
     test('ordered automatic segments and provenance round-trip from original points', () async {
       final db = await app.database;
@@ -367,7 +507,7 @@ void main() {
         expect(
           (await (await app.database).query('walk_surface_corrections'))
               .single['surface'],
-          'pavingStones',
+          'tile',
         );
       },
     );
@@ -684,7 +824,7 @@ void main() {
       ),
       (
         'surface enum',
-        "UPDATE walk_surface_segments SET surface = 'sand' WHERE ordinal = 1",
+        "UPDATE walk_surface_segments SET surface = 'invalidMaterial' WHERE ordinal = 1",
       ),
       (
         'assignment enum',
@@ -726,7 +866,7 @@ void main() {
     });
 
     for (final sql in [
-      "UPDATE walk_surface_corrections SET surface = 'wood'",
+      "UPDATE walk_surface_corrections SET surface = 'invalidMaterial'",
       'UPDATE walk_surface_corrections SET end_edge = 99',
       "INSERT INTO walk_surface_corrections SELECT walk_id, 1, 3, 'grass' FROM walk_surface_analyses",
     ]) {

@@ -2,30 +2,40 @@ import '../../map/evidence/osm_evidence.dart';
 import 'route_analysis.dart';
 
 abstract final class SurfaceRules {
-  /// Explicit allowlist. Broad, mixed, misspelled and unrecognized values do
-  /// not silently become OTHER. OTHER is a known material outside this taxonomy.
+  /// Raw OSM tags and barefoot categories are separate layers. Only this
+  /// explicit allowlist supplies a material; insufficient evidence stays UNKNOWN.
   static const directMapping = <String, CanonicalSurface>{
-    'grass': CanonicalSurface.grass,
     'asphalt': CanonicalSurface.asphalt,
+    'chipseal': CanonicalSurface.asphalt,
+    'paving_stones': CanonicalSurface.tile,
+    'bricks': CanonicalSurface.tile,
+    'sett': CanonicalSurface.cobblestone,
+    'cobblestone': CanonicalSurface.cobblestone,
+    'unhewn_cobblestone': CanonicalSurface.cobblestone,
     'concrete': CanonicalSurface.concrete,
     'concrete:plates': CanonicalSurface.concrete,
     'ground': CanonicalSurface.ground,
     'dirt': CanonicalSurface.ground,
     'earth': CanonicalSurface.ground,
     'soil': CanonicalSurface.ground,
-    'gravel': CanonicalSurface.gravel,
-    'fine_gravel': CanonicalSurface.gravel,
-    'pebblestone': CanonicalSurface.gravel,
-    'paving_stones': CanonicalSurface.pavingStones,
-    'sett': CanonicalSurface.pavingStones,
-    'unhewn_cobblestone': CanonicalSurface.other,
-    'cobblestone': CanonicalSurface.other,
-    'wood': CanonicalSurface.other,
-    'metal': CanonicalSurface.other,
-    'sand': CanonicalSurface.other,
-    'mud': CanonicalSurface.other,
-    'rock': CanonicalSurface.other,
-    'rubber': CanonicalSurface.other,
+    'clay': CanonicalSurface.ground,
+    // Provisional Pathgrain choice; revisit with barefoot field experience.
+    'compacted': CanonicalSurface.ground,
+    'sand': CanonicalSurface.sand,
+    'rock': CanonicalSurface.stone,
+    'stone': CanonicalSurface.stone,
+    'stepping_stones': CanonicalSurface.stone,
+    'fine_gravel': CanonicalSurface.fineGravel,
+    'pebblestone': CanonicalSurface.fineGravel,
+    'crushed_stone': CanonicalSurface.crushedStone,
+    // Generic gravel cannot distinguish rounded gravel from sharp aggregate.
+    'grass': CanonicalSurface.grass,
+    'artificial_turf': CanonicalSurface.artificialTurf,
+    'rubber': CanonicalSurface.rubber,
+    'tartan': CanonicalSurface.rubber,
+    'wood': CanonicalSurface.wood,
+    'metal': CanonicalSurface.metal,
+    'metal_grid': CanonicalSurface.metal,
   };
 
   /// Call only after a supported geometric assignment. Area inference also

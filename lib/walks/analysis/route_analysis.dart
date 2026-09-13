@@ -2,13 +2,20 @@ import '../../map/evidence/osm_evidence.dart';
 import '../walk_models.dart';
 
 enum CanonicalSurface {
-  grass,
   asphalt,
+  tile,
+  cobblestone,
   concrete,
   ground,
-  gravel,
-  pavingStones,
-  other,
+  sand,
+  stone,
+  fineGravel,
+  crushedStone,
+  grass,
+  artificialTurf,
+  rubber,
+  wood,
+  metal,
   unknown,
 }
 
@@ -62,6 +69,7 @@ enum AnalysisReason {
   missingSurface,
   unsupportedSurface,
   conflictingSurface,
+  legacySurfaceAmbiguous,
 }
 
 class GpsAssessment {

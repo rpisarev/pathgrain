@@ -11,6 +11,53 @@ import 'support/analysis_fixtures.dart';
 import 'support/surface_fixtures.dart';
 
 void main() {
+  test('every barefoot category renders with its own style and original edge geometry', () {
+    final labels = CanonicalSurface.values;
+    final automatic = AutomaticSurfaceSnapshot.fromSummary(
+      WalkSurfaceSummary.fromAnalysis(surfaceAnalysis(labels)),
+    );
+    final journal = SurfaceJournal(automatic, [
+      for (var i = 0; i < labels.length; i += 2)
+        SurfaceCorrection(
+          startEdgeIndex: i,
+          endEdgeIndex: i + 1,
+          surface: labels[(i + 1) % labels.length],
+        ),
+    ]);
+    for (final summary in [
+      SurfaceJournal(automatic, const []).effective,
+      journal.effective,
+    ]) {
+      final data = SurfaceRouteGeoJson.build(summary);
+      expect(data, SurfaceRouteGeoJson.build(summary));
+      final features = data['features'] as List;
+      expect(features, hasLength(labels.length));
+      for (var i = 0; i < features.length; i++) {
+        final surface = summary.segments[i].surface;
+        expect(features[i]['properties'], {
+          'surface': surface.name,
+          'color': SurfaceRouteGeoJson.color(surface),
+          'startEdge': i,
+          'endEdge': i + 1,
+          'corrected': summary.segments[i].isCorrected,
+        });
+        expect(features[i]['geometry']['coordinates'], [
+          for (final p in summary.points.getRange(i, i + 2))
+            [p.longitude, p.latitude],
+        ]);
+        expect(
+          SurfaceRouteGeoJson.color(surface),
+          matches(RegExp(r'^#[0-9A-F]{6}$')),
+        );
+      }
+      expect(
+        summary.distanceBySurface.values.fold<double>(0, (a, b) => a + b),
+        closeTo(summary.totalDistanceMeters, 1e-6),
+      );
+    }
+    expect(SurfaceRouteGeoJson.color(CanonicalSurface.unknown), '#C62828');
+  });
+
   test('map lines use ordered original slices, including UNKNOWN', () {
     final points = straight(count: 6, north: 12);
     final summary = WalkSurfaceSummary.fromAnalysis(

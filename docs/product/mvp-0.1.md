@@ -180,6 +180,11 @@ distance-allocation and display-rounding rules are accepted for this milestone.
 Completion does not establish a final taxonomy, mature correction UX, high
 surface-classification coverage or complete OSM coverage.
 
+The initial barefoot taxonomy and raw OSM mapping follow-up is complete and
+physically spot-checked on a Pixel in
+[0.1-F](../development/mvp-0.1-f-barefoot-surface-taxonomy.md); its successful
+in-place upgrade verification is recorded there.
+
 The following remain future work, not blockers for MVP 0.1 completion:
 
 - which geographic/OpenStreetMap source and provider to use, including terms,
@@ -188,8 +193,7 @@ The following remain future work, not blockers for MVP 0.1 completion:
   available offline, and how any network query minimizes location disclosure;
 - broader research into on-device route-to-geography matching and segmentation,
   confidence thresholds, and behavior for conflicting source features;
-- richer barefoot-oriented surface taxonomy and raw OSM surface mapping,
-  including replacing broad OTHER;
+- further barefoot taxonomy and raw OSM mapping refinements after 0.1-F;
 - UX improvements for very many small route segments and map-based
   correction/segment selection;
 - provider/performance hardening and broader production validation.

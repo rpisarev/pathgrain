@@ -383,7 +383,7 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String analysisResult(String assignment, String surface) {
-    return '$assignment · $surface';
+    return 'Pathgrain: $assignment · $surface';
   }
 
   @override
@@ -473,6 +473,7 @@ class AppLocalizationsUk extends AppLocalizations {
           'UNKNOWN: загальне, змішане або непідтримуване значення surface',
       'conflictingSurface':
           'UNKNOWN: суперечливі або обмежені умовами дані про покриття',
+      'legacySurfaceAmbiguous': 'UNKNOWN: збережена стара категорія не дає змоги розрізнити матеріали для ходьби босоніж',
       'other': 'Невідома причина',
     });
     return '$_temp0';
@@ -493,14 +494,22 @@ class AppLocalizationsUk extends AppLocalizations {
   @override
   String analysisSurface(String value) {
     String _temp0 = intl.Intl.selectLogic(value, {
-      'grass': 'Трава',
       'asphalt': 'Асфальт',
+      'tile': 'Плитка',
+      'cobblestone': 'Бруківка',
       'concrete': 'Бетон',
-      'ground': 'Ґрунт / земля',
-      'gravel': 'Гравій',
-      'pavingStones': 'Бруківка',
-      'unknown': 'Невідоме покриття',
-      'other': 'Інший відомий матеріал',
+      'ground': 'Ґрунт',
+      'sand': 'Пісок',
+      'stone': 'Камінь',
+      'fineGravel': 'Галька / дрібний гравій',
+      'crushedStone': 'Щебінь',
+      'grass': 'Трава',
+      'artificialTurf': 'Штучна трава',
+      'rubber': 'Гума',
+      'wood': 'Дерево',
+      'metal': 'Метал',
+      'unknown': 'Невідомо',
+      'other': 'Невідомо',
     });
     return '$_temp0';
   }
@@ -523,6 +532,11 @@ class AppLocalizationsUk extends AppLocalizations {
       'other': 'Довіра до зіставлення: немає',
     });
     return '$_temp0';
+  }
+
+  @override
+  String analysisOsmSurface(String value) {
+    return 'Покриття OSM: $value';
   }
 
   @override

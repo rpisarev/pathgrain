@@ -36,7 +36,7 @@ void main() {
         expect(rejected.eligible, isFalse);
         expect(s.selected?.feature.key, 'way/1');
         expect(s.reason, AnalysisReason.matched);
-        expect(s.surface.surface, CanonicalSurface.pavingStones);
+        expect(s.surface.surface, CanonicalSurface.tile);
         expect(s.surface.assignment, SurfaceAssignment.direct);
         expect(
           s.selected!.score - s.selected!.continuityScore,
@@ -116,7 +116,7 @@ void main() {
           AnalysisReason.unsupportedGeometry,
         );
         for (final edge in result.edges.skip(2)) {
-          expect(edge.surface.surface, CanonicalSurface.pavingStones);
+          expect(edge.surface.surface, CanonicalSurface.tile);
           expect(edge.surface.assignment, SurfaceAssignment.direct);
         }
         expect(result.samples.take(2).every((s) => s.selected == null), isTrue);

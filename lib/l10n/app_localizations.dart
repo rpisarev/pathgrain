@@ -671,7 +671,7 @@ abstract class AppLocalizations {
   /// No description provided for @analysisResult.
   ///
   /// In en, this message translates to:
-  /// **'{assignment} · {surface}'**
+  /// **'Pathgrain: {assignment} · {surface}'**
   String analysisResult(String assignment, String surface);
 
   /// No description provided for @analysisCandidates.
@@ -725,7 +725,7 @@ abstract class AppLocalizations {
   /// No description provided for @analysisReason.
   ///
   /// In en, this message translates to:
-  /// **'{value, select, stable{Stable sequence} warmingUp{Waiting for a consecutive sequence of good samples} recovering{Re-establishing a stable sequence after uncertainty} invalidSample{Invalid accuracy, coordinates, or unsupported latitude} reducedAccuracy{Reported accuracy is outside the stable range} poorAccuracy{Poor reported accuracy} fastMotion{Apparent motion exceeds the provisional speed limit; both endpoints are uncertain} isolatedSpike{Isolated detour from the neighboring samples} sequenceGap{Invalid time/order or a long gap} uncertainEndpoint{At least one endpoint lacks stable GPS confidence} eligible{Eligible walking candidate} unsupportedGeometry{Geometry is outside the experiment’s supported limits} notPedestrian{Walking relevance is not established} accessRestricted{Access tags do not support walking here} conditionalAccess{Conditional access is not interpreted} separateSidewalk{Road centerline cannot locate its tagged sidewalk} tooFar{Outside the bounded matching radius} directionConflict{The candidate direction is incompatible} areaBoundary{GPS uncertainty reaches the area boundary} gpsUncertain{UNKNOWN: GPS sequence is not stable} evidenceIncomplete{UNKNOWN: some evidence cells or elements are unavailable} noCandidate{UNKNOWN: no eligible nearby candidate} weakScore{UNKNOWN: candidate support is too weak} ambiguousCandidates{UNKNOWN: competing geometries cannot be distinguished} conflictingNeighbors{UNKNOWN: independent neighboring assignments disagree} matched{Defensible winner within the loaded evidence} continuitySupported{Supported by independent neighboring matches} differentObjects{UNKNOWN edge: endpoint OSM objects differ} edgeOffGeometry{UNKNOWN edge: intermediate probes leave the candidate geometry} explicitSurface{Explicit supported surface tag on the matched object} grassLandcover{Inferred from grass landcover on this same pedestrian area} missingSurface{UNKNOWN: surface is missing and no inference rule applies} unsupportedSurface{UNKNOWN: broad, mixed, or unsupported surface value} conflictingSurface{UNKNOWN: conflicting or scoped surface evidence} other{Unknown reason}}'**
+  /// **'{value, select, stable{Stable sequence} warmingUp{Waiting for a consecutive sequence of good samples} recovering{Re-establishing a stable sequence after uncertainty} invalidSample{Invalid accuracy, coordinates, or unsupported latitude} reducedAccuracy{Reported accuracy is outside the stable range} poorAccuracy{Poor reported accuracy} fastMotion{Apparent motion exceeds the provisional speed limit; both endpoints are uncertain} isolatedSpike{Isolated detour from the neighboring samples} sequenceGap{Invalid time/order or a long gap} uncertainEndpoint{At least one endpoint lacks stable GPS confidence} eligible{Eligible walking candidate} unsupportedGeometry{Geometry is outside the experiment’s supported limits} notPedestrian{Walking relevance is not established} accessRestricted{Access tags do not support walking here} conditionalAccess{Conditional access is not interpreted} separateSidewalk{Road centerline cannot locate its tagged sidewalk} tooFar{Outside the bounded matching radius} directionConflict{The candidate direction is incompatible} areaBoundary{GPS uncertainty reaches the area boundary} gpsUncertain{UNKNOWN: GPS sequence is not stable} evidenceIncomplete{UNKNOWN: some evidence cells or elements are unavailable} noCandidate{UNKNOWN: no eligible nearby candidate} weakScore{UNKNOWN: candidate support is too weak} ambiguousCandidates{UNKNOWN: competing geometries cannot be distinguished} conflictingNeighbors{UNKNOWN: independent neighboring assignments disagree} matched{Defensible winner within the loaded evidence} continuitySupported{Supported by independent neighboring matches} differentObjects{UNKNOWN edge: endpoint OSM objects differ} edgeOffGeometry{UNKNOWN edge: intermediate probes leave the candidate geometry} explicitSurface{Explicit supported surface tag on the matched object} grassLandcover{Inferred from grass landcover on this same pedestrian area} missingSurface{UNKNOWN: surface is missing and no inference rule applies} unsupportedSurface{UNKNOWN: broad, mixed, or unsupported surface value} conflictingSurface{UNKNOWN: conflicting or scoped surface evidence} legacySurfaceAmbiguous{UNKNOWN: the saved legacy category cannot distinguish barefoot materials} other{Unknown reason}}'**
   String analysisReason(String value);
 
   /// No description provided for @analysisGpsState.
@@ -737,7 +737,7 @@ abstract class AppLocalizations {
   /// No description provided for @analysisSurface.
   ///
   /// In en, this message translates to:
-  /// **'{value, select, grass{Grass} asphalt{Asphalt} concrete{Concrete} ground{Soil / ground} gravel{Gravel} pavingStones{Paving stones} unknown{Unknown surface} other{Other known material}}'**
+  /// **'{value, select, asphalt{Asphalt} tile{Tile} cobblestone{Cobblestone} concrete{Concrete} ground{Ground} sand{Sand} stone{Stone} fineGravel{Fine gravel / pebbles} crushedStone{Crushed stone} grass{Grass} artificialTurf{Artificial turf} rubber{Rubber} wood{Wood} metal{Metal} unknown{Unknown} other{Unknown}}'**
   String analysisSurface(String value);
 
   /// No description provided for @analysisAssignment.
@@ -751,6 +751,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{value, select, strong{Match confidence: strong evidence support (experimental)} supported{Match confidence: supported (experimental)} other{Match confidence: none}}'**
   String analysisConfidence(String value);
+
+  /// No description provided for @analysisOsmSurface.
+  ///
+  /// In en, this message translates to:
+  /// **'OSM surface: {value}'**
+  String analysisOsmSurface(String value);
 
   /// No description provided for @surfaceReview.
   ///

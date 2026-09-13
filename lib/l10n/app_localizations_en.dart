@@ -382,7 +382,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String analysisResult(String assignment, String surface) {
-    return '$assignment · $surface';
+    return 'Pathgrain: $assignment · $surface';
   }
 
   @override
@@ -470,6 +470,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'unsupportedSurface':
           'UNKNOWN: broad, mixed, or unsupported surface value',
       'conflictingSurface': 'UNKNOWN: conflicting or scoped surface evidence',
+      'legacySurfaceAmbiguous': 'UNKNOWN: the saved legacy category cannot distinguish barefoot materials',
       'other': 'Unknown reason',
     });
     return '$_temp0';
@@ -490,14 +491,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String analysisSurface(String value) {
     String _temp0 = intl.Intl.selectLogic(value, {
-      'grass': 'Grass',
       'asphalt': 'Asphalt',
+      'tile': 'Tile',
+      'cobblestone': 'Cobblestone',
       'concrete': 'Concrete',
-      'ground': 'Soil / ground',
-      'gravel': 'Gravel',
-      'pavingStones': 'Paving stones',
-      'unknown': 'Unknown surface',
-      'other': 'Other known material',
+      'ground': 'Ground',
+      'sand': 'Sand',
+      'stone': 'Stone',
+      'fineGravel': 'Fine gravel / pebbles',
+      'crushedStone': 'Crushed stone',
+      'grass': 'Grass',
+      'artificialTurf': 'Artificial turf',
+      'rubber': 'Rubber',
+      'wood': 'Wood',
+      'metal': 'Metal',
+      'unknown': 'Unknown',
+      'other': 'Unknown',
     });
     return '$_temp0';
   }
@@ -520,6 +529,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'other': 'Match confidence: none',
     });
     return '$_temp0';
+  }
+
+  @override
+  String analysisOsmSurface(String value) {
+    return 'OSM surface: $value';
   }
 
   @override

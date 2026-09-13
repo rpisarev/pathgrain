@@ -168,7 +168,7 @@ void main() {
       for (final surface in CanonicalSurface.values) {
         expect(l.analysisSurface(surface.name), isNotEmpty);
       }
-      expect(l.analysisSurface('other'), isNot(l.analysisSurface('unknown')));
+      expect(l.analysisSurface('other'), l.analysisSurface('unknown'));
     });
   }
 }

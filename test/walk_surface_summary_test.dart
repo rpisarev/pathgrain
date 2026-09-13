@@ -16,6 +16,28 @@ const grass = CanonicalSurface.grass;
 const unknown = CanonicalSurface.unknown;
 
 void main() {
+  test('all barefoot categories aggregate repeated original edges without double counting', () {
+    final labels = [
+      ...CanonicalSurface.values,
+      ...CanonicalSurface.values.reversed,
+    ];
+    final summary = WalkSurfaceSummary.fromAnalysis(surfaceAnalysis(labels));
+    expect(
+      summary.distanceBySurface.keys.toSet(),
+      CanonicalSurface.values.toSet(),
+    );
+    for (final surface in CanonicalSurface.values) {
+      var expected = 0.0;
+      for (var i = 0; i < labels.length; i++) {
+        if (labels[i] == surface) {
+          expected += edgeMeters(summary.analysis.edges[i]);
+        }
+      }
+      expect(summary.distanceBySurface[surface], closeTo(expected, 1e-6));
+    }
+    checkAllocation(summary);
+  });
+
   test(
     'compatible edges merge without splitting on sample confidence or support',
     () {

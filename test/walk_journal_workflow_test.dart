@@ -125,7 +125,7 @@ void main() {
     final id = controller.activeWalk!.id;
     expect(controller.walks, isEmpty);
     final database = await app.database;
-    expect(await database.getVersion(), 2);
+    expect(await database.getVersion(), 3);
     expect(await database.query('walk_surface_analyses'), isEmpty);
     expect(provider.calls, isEmpty);
     now = originals.last.recordedAt.add(const Duration(seconds: 3));
@@ -267,7 +267,7 @@ void main() {
     );
     expect(
       journal.automatic.segments.any(
-        (s) => s.surface.surface == CanonicalSurface.pavingStones,
+        (s) => s.surface.surface == CanonicalSurface.tile,
       ),
       isTrue,
     );

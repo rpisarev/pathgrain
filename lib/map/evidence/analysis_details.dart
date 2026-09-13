@@ -30,6 +30,12 @@ class AnalysisDetails extends StatelessWidget {
           ),
           Text(l.analysisConfidence(sample.confidence.name)),
           Text(reason(sample.reason)),
+          if (sample.selected case final MatchCandidate selected)
+            Text(
+              l.analysisOsmSurface(
+                selected.feature.tags['surface'] ?? l.evidenceTagMissing,
+              ),
+            ),
           Text(result(sample.surface)),
           Text(reason(sample.surface.reason)),
           if (edges.isNotEmpty) ...[
